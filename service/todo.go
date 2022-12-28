@@ -22,15 +22,32 @@ func NewTodoService(repository repository.TodoRepository) TodoService {
 }
 
 func (service *todoService) CreateTodo(todo entity.Todo) (*entity.Todo, error) {
+	newTodo, err := service.todoRepository.CreateTodo(todo)
 
-	return &entity.Todo{}, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return newTodo, nil
 }
 
 func (service *todoService) GetTodoById(id uint) (*entity.Todo, error) {
 
-	return &entity.Todo{}, nil
+	todoById, err := service.todoRepository.GetTodoById(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return todoById, nil
 }
 func (service *todoService) GetTodos() ([]*entity.Todo, error) {
 
-	return []*entity.Todo{}, nil
+	todos, err := service.todoRepository.GetTodos()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return todos, nil
 }
