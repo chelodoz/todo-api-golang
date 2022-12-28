@@ -1,14 +1,14 @@
 package service
 
 import (
-	"sample-golang-api/contract"
+	"sample-golang-api/entity"
 	"sample-golang-api/repository"
 )
 
 type TodoService interface {
-	CreateTodo(todo contract.CreateTodoRequest) (*contract.GetTodoByIdResponse, error)
-	GetTodos() (*contract.GetTodosResponse, error)
-	GetTodoById(ID uint) (*contract.GetTodoByIdResponse, error)
+	CreateTodo(todo entity.Todo) (*entity.Todo, error)
+	GetTodoById(id uint) (*entity.Todo, error)
+	GetTodos() ([]*entity.Todo, error)
 }
 
 type todoService struct {
@@ -21,16 +21,16 @@ func NewTodoService(repository repository.TodoRepository) TodoService {
 	}
 }
 
-func (service *todoService) CreateTodo(createTodoRequest contract.CreateTodoRequest) (*contract.GetTodoByIdResponse, error) {
+func (service *todoService) CreateTodo(todo entity.Todo) (*entity.Todo, error) {
 
-	return &contract.GetTodoByIdResponse{}, nil
+	return &entity.Todo{}, nil
 }
 
-func (service *todoService) GetTodoById(ID uint) (*contract.GetTodoByIdResponse, error) {
+func (service *todoService) GetTodoById(id uint) (*entity.Todo, error) {
 
-	return &contract.GetTodoByIdResponse{}, nil
+	return &entity.Todo{}, nil
 }
-func (service *todoService) GetTodos() (*contract.GetTodosResponse, error) {
+func (service *todoService) GetTodos() ([]*entity.Todo, error) {
 
-	return &contract.GetTodosResponse{}, nil
+	return []*entity.Todo{}, nil
 }
