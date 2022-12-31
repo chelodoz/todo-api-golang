@@ -8,6 +8,6 @@
         "type": "go",
         "request": "launch",
         "mode": "auto",
-        "program": "main.go"
+        "program": "./cmd/todo/main.go"
     }]
 }
