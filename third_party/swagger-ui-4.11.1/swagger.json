@@ -1,0 +1,168 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Documentation for Todo API",
+    "title": "Todo API",
+    "version": "1.0.0"
+  },
+  "host": "localhost:8080",
+  "basePath": "/api/v1",
+  "paths": {
+    "/todos": {
+      "get": {
+        "description": "Returns a list of todos from the database",
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Returns a list of todos",
+        "operationId": "Todos",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetTodosResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new todo in a database",
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Creates a new todo",
+        "operationId": "createTodoRequestWrapper",
+        "parameters": [
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateTodoRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/CreateTodoResponse"
+          }
+        }
+      }
+    },
+    "/todos/{todoId}": {
+      "get": {
+        "description": "Returns a single todo from the database",
+        "tags": [
+          "Todos"
+        ],
+        "summary": "Returns a single todo",
+        "operationId": "todoIdQueryParamWrapper",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "uint64",
+            "x-go-name": "ID",
+            "description": "The id of the todo for which the operation relates",
+            "name": "todoId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetTodoByIdResponse"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateTodoRequest": {
+      "description": "Create a todo request",
+      "type": "object",
+      "required": [
+        "name",
+        "description"
+      ],
+      "properties": {
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "_/C_/Users/MarceloDoz/Documents/Go/sample-golang-api/internal/todo"
+    },
+    "CreateTodoResponse": {
+      "description": "Create a todo response",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "id": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Id"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "_/C_/Users/MarceloDoz/Documents/Go/sample-golang-api/internal/todo"
+    }
+  },
+  "responses": {
+    "CreateTodoResponse": {
+      "description": "Create a todo response",
+      "headers": {
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "uint64"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "GetTodoByIdResponse": {
+      "description": "A single todo returns in the response",
+      "headers": {
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "uint64"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "GetTodosResponse": {
+      "description": "List todos returns",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/CreateTodoResponse"
+        }
+      }
+    }
+  }
+}

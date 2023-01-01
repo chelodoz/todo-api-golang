@@ -21,8 +21,8 @@ func NewTodoRepository() TodoRepository {
 }
 
 func (todoRepository *todoRepository) CreateTodo(todo entity.Todo) (*entity.Todo, error) {
-	maxID := todos[len(todos)-1].Id
-	todo.Id = maxID + 1
+	maxID := todos[len(todos)-1].ID
+	todo.ID = maxID + 1
 	todos = append(todos, &todo)
 	return &todo, nil
 }
@@ -41,22 +41,22 @@ func (todoRepository *todoRepository) GetTodos() ([]*entity.Todo, error) {
 
 var todos = []*entity.Todo{
 	{
-		Id:          1,
+		ID:          1,
 		Name:        "Setup stand up",
 		Description: "Create an invitation for the daily stand up",
 		CreatedOn:   time.Now().UTC().String(),
 	},
 	{
-		Id:          2,
-		Name:        "Espresso",
-		Description: "Short and strong coffee without milk",
+		ID:          2,
+		Name:        "Coffee",
+		Description: "Grab some coffee to the team",
 		CreatedOn:   time.Now().UTC().String(),
 	},
 }
 
 func findIndexById(id uint) int {
 	for i, p := range todos {
-		if uint(p.Id) == id {
+		if uint(p.ID) == id {
 			return i
 		}
 	}

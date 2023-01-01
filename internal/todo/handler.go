@@ -28,6 +28,14 @@ func NewTodoHandler(service TodoService) TodoHandler {
 	}
 }
 
+// swagger:route POST /todos Todos createTodoRequestWrapper
+// Creates a new todo
+//
+// Create a new todo in a database
+//
+// responses:
+// 201: CreateTodoResponse
+
 //	CreateTodo handles POST requests and create a todo into the data store
 func (h *todoHandler) CreateTodo(rw http.ResponseWriter, r *http.Request) {
 	var createTodoRequest CreateTodoRequest
@@ -47,11 +55,18 @@ func (h *todoHandler) CreateTodo(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	platform.WriteResponse(rw, http.StatusCreated, CreateTodoResponse{
-		Id:          todo.Id,
+		ID:          todo.ID,
 		Name:        todo.Name,
 		Description: todo.Description,
 	})
 }
+
+// swagger:route GET /todos Todos Todos
+// Returns a list of todos
+//
+// Returns a list of todos from the database
+// responses:
+// 200: GetTodosResponse
 
 //  GetTodos handles GET requests and returns all the todos from the data store
 func (h *todoHandler) GetTodos(rw http.ResponseWriter, r *http.Request) {
@@ -65,7 +80,14 @@ func (h *todoHandler) GetTodos(rw http.ResponseWriter, r *http.Request) {
 	platform.WriteResponse(rw, http.StatusOK, todos)
 }
 
-//	GetTodo GET/{todoId} GET requests and returns a todo from the data store
+// swagger:route GET /todos/{todoId} Todos todoIdQueryParamWrapper
+// Returns a single todo
+//
+// Returns a single todo from the database
+// responses:
+// 200: GetTodoByIdResponse
+
+//	GetTodo handles GET/{todoId} requests and returns a todo from the data store
 func (h *todoHandler) GetTodoById(rw http.ResponseWriter, r *http.Request) {
 	todoId := platform.GetIntId(r, "todoId")
 	todos, err := h.service.GetTodoById(todoId)

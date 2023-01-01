@@ -1,16 +1,25 @@
 package todo
 
+// Create a todo request
 type CreateTodoRequest struct {
-	Name        string `json:"name" validate:"required"`
+	// required: true
+	Name string `json:"name" validate:"required"`
+	// required: true
 	Description string `json:"description" validate:"required"`
 }
 
+// Create a todo response
+// swagger:response CreateTodoResponse
 type CreateTodoResponse struct {
-	Id          uint   `json:"id"`
+	ID          uint   `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
+// List todos returns
+// swagger:response GetTodosResponse
 type GetTodosResponse []*CreateTodoResponse
 
+// A single todo returns in the response
+// swagger:response GetTodoByIdResponse
 type GetTodoByIdResponse CreateTodoResponse

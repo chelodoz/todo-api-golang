@@ -14,5 +14,5 @@ func NewTodoRouter(todoHandler TodoHandler) *mux.Router {
 	base.HandleFunc("/todos", todoHandler.CreateTodo).Methods(http.MethodPost)
 	base.HandleFunc("/todos/{todoId}", todoHandler.GetTodoById).Methods(http.MethodGet)
 
-	return router
+	return base
 }

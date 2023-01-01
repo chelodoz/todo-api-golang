@@ -1,7 +1,7 @@
 package entity
 
 type Todo struct {
-	Id          uint   `json:"id"`
+	ID          uint   `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	CreatedOn   string `json:"-"`
