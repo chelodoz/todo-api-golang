@@ -41,24 +41,27 @@ func (h *todoHandler) CreateTodo(rw http.ResponseWriter, r *http.Request) {
 	var createTodoRequest CreateTodoRequest
 
 	if err := platform.ReadRequestBody(r, &createTodoRequest); err != nil {
-		platform.WriteResponse(rw, http.StatusBadRequest, error.ErrorResponse{Message: err.Error()})
+		platform.WriteResponse(rw, http.StatusBadRequest, &error.ErrorResponse{Status: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
-
-	todo, err := h.service.CreateTodo(entity.Todo{
+	newTodo := &entity.Todo{
 		Name:        createTodoRequest.Name,
 		Description: createTodoRequest.Description,
-	})
+	}
+	todo, err := h.service.CreateTodo(newTodo, r.Context())
 
 	if err != nil {
-		platform.WriteResponse(rw, http.StatusInternalServerError, error.ErrorResponse{Message: err.Error()})
+		platform.WriteResponse(rw, http.StatusInternalServerError, &error.ErrorResponse{Status: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
-	platform.WriteResponse(rw, http.StatusCreated, CreateTodoResponse{
+
+	todoResponse := &CreateTodoResponse{
 		ID:          todo.ID,
 		Name:        todo.Name,
 		Description: todo.Description,
-	})
+	}
+
+	platform.WriteResponse(rw, http.StatusCreated, todoResponse)
 }
 
 // swagger:route GET /todos Todos Todos
@@ -70,14 +73,25 @@ func (h *todoHandler) CreateTodo(rw http.ResponseWriter, r *http.Request) {
 
 //  GetTodos handles GET requests and returns all the todos from the data store
 func (h *todoHandler) GetTodos(rw http.ResponseWriter, r *http.Request) {
-	todos, err := h.service.GetTodos()
+	todos, err := h.service.GetTodos(r.Context())
 
 	if err != nil {
-		platform.WriteResponse(rw, http.StatusInternalServerError, error.ErrorResponse{Message: err.Error()})
+		platform.WriteResponse(rw, http.StatusInternalServerError, &error.ErrorResponse{Status: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 
-	platform.WriteResponse(rw, http.StatusOK, todos)
+	var todosResponse GetTodosResponse
+
+	for _, todo := range todos {
+		todoResponse := CreateTodoResponse{
+			ID:          todo.ID,
+			Name:        todo.Name,
+			Description: todo.Description,
+		}
+		todosResponse = append(todosResponse, todoResponse)
+	}
+
+	platform.WriteResponse(rw, http.StatusOK, &todosResponse)
 }
 
 // swagger:route GET /todos/{todoId} Todos todoIdQueryParamWrapper
@@ -90,12 +104,18 @@ func (h *todoHandler) GetTodos(rw http.ResponseWriter, r *http.Request) {
 //	GetTodo handles GET/{todoId} requests and returns a todo from the data store
 func (h *todoHandler) GetTodoById(rw http.ResponseWriter, r *http.Request) {
 	todoId := platform.GetIntId(r, "todoId")
-	todos, err := h.service.GetTodoById(todoId)
+	todo, err := h.service.GetTodoById(todoId, r.Context())
 
 	if err != nil {
-		platform.WriteResponse(rw, http.StatusInternalServerError, error.ErrorResponse{Message: err.Error()})
+		platform.WriteResponse(rw, http.StatusInternalServerError, &error.ErrorResponse{Status: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 
-	platform.WriteResponse(rw, http.StatusOK, todos)
+	todoResponse := &GetTodoByIdResponse{
+		ID:          todo.ID,
+		Name:        todo.Name,
+		Description: todo.Description,
+	}
+
+	platform.WriteResponse(rw, http.StatusOK, todoResponse)
 }

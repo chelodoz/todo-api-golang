@@ -1,11 +1,14 @@
 package todo
 
-import "sample-golang-api/internal/entity"
+import (
+	"context"
+	"sample-golang-api/internal/entity"
+)
 
 type TodoService interface {
-	CreateTodo(todo entity.Todo) (*entity.Todo, error)
-	GetTodoById(id uint) (*entity.Todo, error)
-	GetTodos() ([]*entity.Todo, error)
+	CreateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
+	GetTodoById(id uint, ctx context.Context) (*entity.Todo, error)
+	GetTodos(ctx context.Context) ([]entity.Todo, error)
 }
 
 type todoService struct {
@@ -18,8 +21,8 @@ func NewTodoService(repository TodoRepository) TodoService {
 	}
 }
 
-func (service *todoService) CreateTodo(todo entity.Todo) (*entity.Todo, error) {
-	newTodo, err := service.todoRepository.CreateTodo(todo)
+func (service *todoService) CreateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error) {
+	newTodo, err := service.todoRepository.CreateTodo(todo, ctx)
 
 	if err != nil {
 		return nil, err
@@ -28,9 +31,9 @@ func (service *todoService) CreateTodo(todo entity.Todo) (*entity.Todo, error) {
 	return newTodo, nil
 }
 
-func (service *todoService) GetTodoById(id uint) (*entity.Todo, error) {
+func (service *todoService) GetTodoById(id uint, ctx context.Context) (*entity.Todo, error) {
 
-	todoById, err := service.todoRepository.GetTodoById(id)
+	todoById, err := service.todoRepository.GetTodoById(id, ctx)
 
 	if err != nil {
 		return nil, err
@@ -38,9 +41,9 @@ func (service *todoService) GetTodoById(id uint) (*entity.Todo, error) {
 
 	return todoById, nil
 }
-func (service *todoService) GetTodos() ([]*entity.Todo, error) {
+func (service *todoService) GetTodos(ctx context.Context) ([]entity.Todo, error) {
 
-	todos, err := service.todoRepository.GetTodos()
+	todos, err := service.todoRepository.GetTodos(ctx)
 
 	if err != nil {
 		return nil, err

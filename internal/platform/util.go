@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func WriteResponse[T any](rw http.ResponseWriter, code int, data T) {
+func WriteResponse[T any](rw http.ResponseWriter, code int, data *T) {
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(code)
 	if err := json.NewEncoder(rw).Encode(data); err != nil {

@@ -18,7 +18,7 @@ type CreateTodoResponse struct {
 
 // List todos returns
 // swagger:response GetTodosResponse
-type GetTodosResponse []*CreateTodoResponse
+type GetTodosResponse []CreateTodoResponse
 
 // A single todo returns in the response
 // swagger:response GetTodoByIdResponse
