@@ -3,8 +3,8 @@ package todo
 import (
 	"net/http"
 	"sample-golang-api/internal/entity"
-	"sample-golang-api/internal/error"
-	"sample-golang-api/internal/platform"
+	"sample-golang-api/internal/errors"
+	"sample-golang-api/pkg/util"
 
 	"github.com/go-playground/validator"
 )
@@ -35,13 +35,15 @@ func NewTodoHandler(service TodoService) TodoHandler {
 //
 // responses:
 // 201: CreateTodoResponse
+// 422: errorResponseWrapper
 
 //	CreateTodo handles POST requests and create a todo into the data store
 func (h *todoHandler) CreateTodo(rw http.ResponseWriter, r *http.Request) {
 	var createTodoRequest CreateTodoRequest
 
-	if err := platform.ReadRequestBody(r, &createTodoRequest); err != nil {
-		platform.WriteResponse(rw, http.StatusBadRequest, &error.ErrorResponse{Status: http.StatusInternalServerError, Message: err.Error()})
+	if err := util.ReadRequestBody(r, &createTodoRequest); err != nil {
+
+		util.WriteError(rw, errors.NewUnprocessableEntity())
 		return
 	}
 	newTodo := &entity.Todo{
@@ -51,7 +53,7 @@ func (h *todoHandler) CreateTodo(rw http.ResponseWriter, r *http.Request) {
 	todo, err := h.service.CreateTodo(newTodo, r.Context())
 
 	if err != nil {
-		platform.WriteResponse(rw, http.StatusInternalServerError, &error.ErrorResponse{Status: http.StatusInternalServerError, Message: err.Error()})
+		util.WriteError(rw, errors.NewInternal())
 		return
 	}
 
@@ -61,7 +63,7 @@ func (h *todoHandler) CreateTodo(rw http.ResponseWriter, r *http.Request) {
 		Description: todo.Description,
 	}
 
-	platform.WriteResponse(rw, http.StatusCreated, todoResponse)
+	util.WriteResponse(rw, http.StatusCreated, todoResponse)
 }
 
 // swagger:route GET /todos Todos Todos
@@ -76,7 +78,7 @@ func (h *todoHandler) GetTodos(rw http.ResponseWriter, r *http.Request) {
 	todos, err := h.service.GetTodos(r.Context())
 
 	if err != nil {
-		platform.WriteResponse(rw, http.StatusInternalServerError, &error.ErrorResponse{Status: http.StatusInternalServerError, Message: err.Error()})
+		util.WriteError(rw, errors.NewInternal())
 		return
 	}
 
@@ -91,7 +93,7 @@ func (h *todoHandler) GetTodos(rw http.ResponseWriter, r *http.Request) {
 		todosResponse = append(todosResponse, todoResponse)
 	}
 
-	platform.WriteResponse(rw, http.StatusOK, &todosResponse)
+	util.WriteResponse(rw, http.StatusOK, &todosResponse)
 }
 
 // swagger:route GET /todos/{todoId} Todos todoIdQueryParamWrapper
@@ -103,11 +105,11 @@ func (h *todoHandler) GetTodos(rw http.ResponseWriter, r *http.Request) {
 
 //	GetTodo handles GET/{todoId} requests and returns a todo from the data store
 func (h *todoHandler) GetTodoById(rw http.ResponseWriter, r *http.Request) {
-	todoId := platform.GetIntId(r, "todoId")
+	todoId := util.GetIntId(r, "todoId")
 	todo, err := h.service.GetTodoById(todoId, r.Context())
 
 	if err != nil {
-		platform.WriteResponse(rw, http.StatusInternalServerError, &error.ErrorResponse{Status: http.StatusInternalServerError, Message: err.Error()})
+		util.WriteError(rw, errors.NewInternal())
 		return
 	}
 
@@ -117,5 +119,5 @@ func (h *todoHandler) GetTodoById(rw http.ResponseWriter, r *http.Request) {
 		Description: todo.Description,
 	}
 
-	platform.WriteResponse(rw, http.StatusOK, todoResponse)
+	util.WriteResponse(rw, http.StatusOK, todoResponse)
 }

@@ -23,3 +23,8 @@ type GetTodosResponse []CreateTodoResponse
 // A single todo returns in the response
 // swagger:response GetTodoByIdResponse
 type GetTodoByIdResponse CreateTodoResponse
+
+type ErrorResponse struct {
+	Status  int    `json:"status"`
+	Message string `json:"message"`
+}

@@ -25,7 +25,7 @@ definitions:
       id:
         format: uint64
         type: integer
-        x-go-name: Id
+        x-go-name: ID
       name:
         type: string
         x-go-name: Name
@@ -59,6 +59,8 @@ paths:
       responses:
         "201":
           $ref: '#/responses/CreateTodoResponse'
+        "422":
+          $ref: '#/responses/errorResponseWrapper'
       summary: Creates a new todo
       tags:
       - Todos
@@ -109,6 +111,16 @@ responses:
       items:
         $ref: '#/definitions/CreateTodoResponse'
       type: array
+  errorResponseWrapper:
+    description: ""
+    headers:
+      code:
+        format: int64
+        type: integer
+      message:
+        type: string
+      type:
+        type: string
 schemes:
 - http
 - https

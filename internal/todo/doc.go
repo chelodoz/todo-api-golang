@@ -30,3 +30,10 @@ type todoIdQueryParamWrapper struct {
 	// required: true
 	ID uint `json:"todoId"`
 }
+
+// swagger:response errorResponseWrapper
+type errorResponseWrapper struct {
+	Type    string `json:"type"`
+	Message string `json:"message"`
+	Code    int    `json:"code"`
+}

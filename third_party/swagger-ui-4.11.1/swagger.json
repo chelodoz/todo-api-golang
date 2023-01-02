@@ -52,6 +52,9 @@
         "responses": {
           "201": {
             "$ref": "#/responses/CreateTodoResponse"
+          },
+          "422": {
+            "$ref": "#/responses/errorResponseWrapper"
           }
         }
       }
@@ -114,7 +117,7 @@
         "id": {
           "type": "integer",
           "format": "uint64",
-          "x-go-name": "Id"
+          "x-go-name": "ID"
         },
         "name": {
           "type": "string",
@@ -161,6 +164,21 @@
         "type": "array",
         "items": {
           "$ref": "#/definitions/CreateTodoResponse"
+        }
+      }
+    },
+    "errorResponseWrapper": {
+      "description": "",
+      "headers": {
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
         }
       }
     }
