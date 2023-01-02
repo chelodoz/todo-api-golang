@@ -1,4 +1,4 @@
-module sample-golang-api
+module todo-api-golang
 
 go 1.18
 

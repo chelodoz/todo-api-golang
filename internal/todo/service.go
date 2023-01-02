@@ -2,7 +2,7 @@ package todo
 
 import (
 	"context"
-	"sample-golang-api/internal/entity"
+	"todo-api-golang/internal/entity"
 )
 
 type TodoService interface {

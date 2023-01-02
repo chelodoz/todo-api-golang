@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sample-golang-api/internal/config"
-	"sample-golang-api/internal/todo"
+	"todo-api-golang/internal/config"
+	"todo-api-golang/internal/todo"
 
 	"syscall"
 	"time"
@@ -36,7 +36,7 @@ func startHTTPServer(config config.Config) {
 	// CORS
 	cors := handlers.CORS(handlers.AllowedOrigins([]string{"*"}))
 
-	log := log.New(os.Stdout, "sample-golang-api ", log.LstdFlags)
+	log := log.New(os.Stdout, "todo-api-golang ", log.LstdFlags)
 	// create a new server
 	server := http.Server{
 		Addr:         config.HTTPServerAddress, // configure the bind address

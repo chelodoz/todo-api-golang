@@ -3,8 +3,8 @@ package todo
 import (
 	"context"
 	"fmt"
-	"sample-golang-api/internal/entity"
 	"time"
+	"todo-api-golang/internal/entity"
 )
 
 var ErrTodoNotFound = fmt.Errorf("todo not found")

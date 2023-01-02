@@ -2,9 +2,9 @@ package todo
 
 import (
 	"net/http"
-	"sample-golang-api/internal/entity"
-	"sample-golang-api/internal/errors"
-	"sample-golang-api/pkg/util"
+	"todo-api-golang/internal/entity"
+	"todo-api-golang/internal/errors"
+	"todo-api-golang/pkg/util"
 
 	"github.com/go-playground/validator"
 )

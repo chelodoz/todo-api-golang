@@ -3,8 +3,8 @@ package util
 import (
 	"encoding/json"
 	"net/http"
-	"sample-golang-api/internal/errors"
 	"strconv"
+	"todo-api-golang/internal/errors"
 
 	"github.com/gorilla/mux"
 )

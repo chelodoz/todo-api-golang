@@ -1,6 +1,6 @@
 basePath: /api/v1
 consumes:
-- application/json
+  - application/json
 definitions:
   CreateTodoRequest:
     description: Create a todo request
@@ -12,10 +12,10 @@ definitions:
         type: string
         x-go-name: Name
     required:
-    - name
-    - description
+      - name
+      - description
     type: object
-    x-go-package: _/C_/Users/MarceloDoz/Documents/Go/sample-golang-api/internal/todo
+    x-go-package: _/C_/Users/MarceloDoz/Documents/Go/todo-api-golang/internal/todo
   CreateTodoResponse:
     description: Create a todo response
     properties:
@@ -30,7 +30,7 @@ definitions:
         type: string
         x-go-name: Name
     type: object
-    x-go-package: _/C_/Users/MarceloDoz/Documents/Go/sample-golang-api/internal/todo
+    x-go-package: _/C_/Users/MarceloDoz/Documents/Go/todo-api-golang/internal/todo
 host: localhost:8080
 info:
   description: Documentation for Todo API
@@ -43,47 +43,47 @@ paths:
       operationId: Todos
       responses:
         "200":
-          $ref: '#/responses/GetTodosResponse'
+          $ref: "#/responses/GetTodosResponse"
       summary: Returns a list of todos
       tags:
-      - Todos
+        - Todos
     post:
       description: Create a new todo in a database
       operationId: createTodoRequestWrapper
       parameters:
-      - in: body
-        name: Body
-        required: true
-        schema:
-          $ref: '#/definitions/CreateTodoRequest'
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: "#/definitions/CreateTodoRequest"
       responses:
         "201":
-          $ref: '#/responses/CreateTodoResponse'
+          $ref: "#/responses/CreateTodoResponse"
         "422":
-          $ref: '#/responses/errorResponseWrapper'
+          $ref: "#/responses/errorResponseWrapper"
       summary: Creates a new todo
       tags:
-      - Todos
+        - Todos
   /todos/{todoId}:
     get:
       description: Returns a single todo from the database
       operationId: todoIdQueryParamWrapper
       parameters:
-      - description: The id of the todo for which the operation relates
-        format: uint64
-        in: path
-        name: todoId
-        required: true
-        type: integer
-        x-go-name: ID
+        - description: The id of the todo for which the operation relates
+          format: uint64
+          in: path
+          name: todoId
+          required: true
+          type: integer
+          x-go-name: ID
       responses:
         "200":
-          $ref: '#/responses/GetTodoByIdResponse'
+          $ref: "#/responses/GetTodoByIdResponse"
       summary: Returns a single todo
       tags:
-      - Todos
+        - Todos
 produces:
-- application/json
+  - application/json
 responses:
   CreateTodoResponse:
     description: Create a todo response
@@ -109,7 +109,7 @@ responses:
     description: List todos returns
     schema:
       items:
-        $ref: '#/definitions/CreateTodoResponse'
+        $ref: "#/definitions/CreateTodoResponse"
       type: array
   errorResponseWrapper:
     description: ""
@@ -122,6 +122,6 @@ responses:
       type:
         type: string
 schemes:
-- http
-- https
+  - http
+  - https
 swagger: "2.0"

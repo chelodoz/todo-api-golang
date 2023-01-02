@@ -6,7 +6,7 @@ After installing Go , you should run the following commands to experience this p
 
 
 ## Open the code
-cd sample-golang-api/cmd/todo
+cd todo-api-golang/cmd/todo
 
 ## Start server and run the code
 go run main.go

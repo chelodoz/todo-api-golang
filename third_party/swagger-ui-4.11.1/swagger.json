@@ -104,7 +104,7 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "_/C_/Users/MarceloDoz/Documents/Go/sample-golang-api/internal/todo"
+      "x-go-package": "_/C_/Users/MarceloDoz/Documents/Go/todo-api-golang/internal/todo"
     },
     "CreateTodoResponse": {
       "description": "Create a todo response",
@@ -124,7 +124,7 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "_/C_/Users/MarceloDoz/Documents/Go/sample-golang-api/internal/todo"
+      "x-go-package": "_/C_/Users/MarceloDoz/Documents/Go/todo-api-golang/internal/todo"
     }
   },
   "responses": {
