@@ -13,6 +13,7 @@ type TodoRepository interface {
 	CreateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
 	GetTodoById(id uint, ctx context.Context) (*entity.Todo, error)
 	GetTodos(ctx context.Context) ([]entity.Todo, error)
+	UpdateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
 }
 
 type todoRepository struct{}
@@ -56,12 +57,22 @@ var todos = []entity.Todo{
 	},
 }
 
+func (todoRepository *todoRepository) UpdateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error) {
+
+	i := findIndexById(todo.ID)
+	if i == -1 {
+		return nil, ErrTodoNotFound
+	}
+
+	todos[i] = *todo
+	return todo, nil
+}
+
 func findIndexById(id uint) int {
 	for i, p := range todos {
 		if uint(p.ID) == id {
 			return i
 		}
 	}
-
 	return -1
 }

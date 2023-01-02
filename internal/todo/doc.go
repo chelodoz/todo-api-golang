@@ -23,12 +23,28 @@ type createTodoRequestWrapper struct {
 	Body CreateTodoRequest
 }
 
+// swagger:parameters updateTodoRequestWrapper
+type updateTodoRequestWrapper struct {
+	// The id of the todo for which the operation relates
+	// in: path
+	// required: true
+	ID uint `json:"todoId"`
+	// in: body
+	// required: true
+	Body UpdateTodoRequest
+}
+
 // swagger:parameters todoIdQueryParamWrapper
 type todoIdQueryParamWrapper struct {
 	// The id of the todo for which the operation relates
 	// in: path
 	// required: true
 	ID uint `json:"todoId"`
+}
+
+// No content is returned by this API endpoint
+// swagger:response noContentResponseWrapper
+type noContentResponseWrapper struct {
 }
 
 // swagger:response errorResponseWrapper

@@ -15,6 +15,7 @@ type TodoHandler interface {
 	CreateTodo(rw http.ResponseWriter, r *http.Request)
 	GetTodoById(rw http.ResponseWriter, r *http.Request)
 	GetTodos(rw http.ResponseWriter, r *http.Request)
+	UpdateTodoById(rw http.ResponseWriter, r *http.Request)
 }
 
 type todoHandler struct {
@@ -46,6 +47,12 @@ func (h *todoHandler) CreateTodo(rw http.ResponseWriter, r *http.Request) {
 		util.WriteError(rw, errors.NewUnprocessableEntity())
 		return
 	}
+
+	if err := validate.Struct(&createTodoRequest); err != nil {
+		util.WriteError(rw, errors.NewBadRequest(err.Error()))
+		return
+	}
+
 	newTodo := &entity.Todo{
 		Name:        createTodoRequest.Name,
 		Description: createTodoRequest.Description,
@@ -120,4 +127,44 @@ func (h *todoHandler) GetTodoById(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	util.WriteResponse(rw, http.StatusOK, todoResponse)
+}
+
+// swagger:route PATCH /todos/{todoId} Todos updateTodoRequestWrapper
+// Update an existing todo
+//
+// Update a new todo in a database
+//
+// responses:
+// 204: noContentResponseWrapper
+// 422: errorResponseWrapper
+
+//	UpdateTodoById handles PATCH requests and updates a todo into the data store
+func (h *todoHandler) UpdateTodoById(rw http.ResponseWriter, r *http.Request) {
+	var updateTodoRequest UpdateTodoRequest
+	todoId := util.GetIntId(r, "todoId")
+
+	if err := util.ReadRequestBody(r, &updateTodoRequest); err != nil {
+
+		util.WriteError(rw, errors.NewUnprocessableEntity())
+		return
+	}
+
+	if err := validate.Struct(&updateTodoRequest); err != nil {
+		util.WriteError(rw, errors.NewBadRequest(err.Error()))
+		return
+	}
+
+	updatedTodo := &entity.Todo{
+		ID:          todoId,
+		Name:        updateTodoRequest.Name,
+		Description: updateTodoRequest.Description,
+	}
+	_, err := h.service.UpdateTodo(updatedTodo, r.Context())
+
+	if err != nil {
+		util.WriteError(rw, errors.NewInternal())
+		return
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
 }

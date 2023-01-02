@@ -9,6 +9,7 @@ type TodoService interface {
 	CreateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
 	GetTodoById(id uint, ctx context.Context) (*entity.Todo, error)
 	GetTodos(ctx context.Context) ([]entity.Todo, error)
+	UpdateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
 }
 
 type todoService struct {
@@ -23,6 +24,15 @@ func NewTodoService(repository TodoRepository) TodoService {
 
 func (service *todoService) CreateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error) {
 	newTodo, err := service.todoRepository.CreateTodo(todo, ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return newTodo, nil
+}
+func (service *todoService) UpdateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error) {
+	newTodo, err := service.todoRepository.UpdateTodo(todo, ctx)
 
 	if err != nil {
 		return nil, err

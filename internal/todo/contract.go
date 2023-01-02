@@ -8,6 +8,14 @@ type CreateTodoRequest struct {
 	Description string `json:"description" validate:"required"`
 }
 
+// Update a todo request
+type UpdateTodoRequest struct {
+	// required: true
+	Name string `json:"name" validate:"required"`
+	// required: true
+	Description string `json:"description" validate:"required"`
+}
+
 // Create a todo response
 // swagger:response CreateTodoResponse
 type CreateTodoResponse struct {

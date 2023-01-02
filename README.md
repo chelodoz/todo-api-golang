@@ -57,4 +57,4 @@ as described in the [clean architecture](https://blog.cleancoder.com/uncle-bob/2
 
 ## Generate swagger documentation
 
-Use the command go swagger to generate the /docs/swagger.yaml and third_party/swagger-ui-4.11.1/swagger.json files from the go-swagger models
+Use the command `make swagger` to generate the /docs/swagger.yaml and third_party/swagger-ui-4.11.1/swagger.json files from the go-swagger models

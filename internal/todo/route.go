@@ -13,6 +13,7 @@ func NewTodoRouter(todoHandler TodoHandler) *mux.Router {
 	base.HandleFunc("/todos", todoHandler.GetTodos).Methods(http.MethodGet)
 	base.HandleFunc("/todos", todoHandler.CreateTodo).Methods(http.MethodPost)
 	base.HandleFunc("/todos/{todoId}", todoHandler.GetTodoById).Methods(http.MethodGet)
+	base.HandleFunc("/todos/{todoId}", todoHandler.UpdateTodoById).Methods(http.MethodPatch)
 
 	return base
 }
