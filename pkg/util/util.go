@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"todo-api-golang/internal/errors"
+	appError "todo-api-golang/internal/error"
 
 	"github.com/gorilla/mux"
 )
@@ -16,22 +16,23 @@ func WriteResponse[T any](rw http.ResponseWriter, code int, data *T) {
 		panic(err)
 	}
 }
-func WriteError(rw http.ResponseWriter, error *errors.ErrorResponse) {
+func WriteError(rw http.ResponseWriter, error *appError.ErrorResponse) error {
 	rw.Header().Add("Content-Type", "application/problem+json")
 	rw.WriteHeader(error.Code)
 	if err := json.NewEncoder(rw).Encode(error); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
-func GetIntId(r *http.Request, uriParam string) uint {
+func GetIntId(r *http.Request, uriParam string) (uint, error) {
 	vars := mux.Vars(r)
 	// convert the id into an integer and return
 	id, err := strconv.ParseUint(vars[uriParam], 10, 64)
 	if err != nil {
-		panic(err)
+		return 0, appError.ErrInvalidId
 	}
-	return uint(id)
+	return uint(id), nil
 }
 
 func ReadRequestBody[T any](r *http.Request, data *T) error {

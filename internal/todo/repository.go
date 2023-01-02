@@ -2,12 +2,10 @@ package todo
 
 import (
 	"context"
-	"fmt"
 	"time"
 	"todo-api-golang/internal/entity"
+	appError "todo-api-golang/internal/error"
 )
-
-var ErrTodoNotFound = fmt.Errorf("todo not found")
 
 type TodoRepository interface {
 	CreateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
@@ -33,7 +31,7 @@ func (todoRepository *todoRepository) CreateTodo(todo *entity.Todo, ctx context.
 func (todoRepository *todoRepository) GetTodoById(id uint, ctx context.Context) (*entity.Todo, error) {
 	i := findIndexById(id)
 	if i == -1 {
-		return nil, ErrTodoNotFound
+		return nil, appError.ErrTodoNotFound
 	}
 	return &todos[i], nil
 }
@@ -61,7 +59,7 @@ func (todoRepository *todoRepository) UpdateTodo(todo *entity.Todo, ctx context.
 
 	i := findIndexById(todo.ID)
 	if i == -1 {
-		return nil, ErrTodoNotFound
+		return nil, appError.ErrTodoNotFound
 	}
 
 	todos[i] = *todo

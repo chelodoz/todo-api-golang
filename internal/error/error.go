@@ -1,8 +1,13 @@
-package errors
+package error
 
 import (
 	"fmt"
 	"net/http"
+)
+
+var (
+	ErrInvalidId    = fmt.Errorf("invalid id")
+	ErrTodoNotFound = fmt.Errorf("todo not found")
 )
 
 //Type holds a type string and integer code for the error
@@ -77,10 +82,10 @@ func NewInternal() *ErrorResponse {
 }
 
 // NewNotFound to create an error for 404
-func NewNotFound(name string, value string) *ErrorResponse {
+func NewNotFound() *ErrorResponse {
 	return &ErrorResponse{
 		Type:    NotFound,
-		Message: fmt.Sprintf("resource: %v with value: %v not found", name, value),
+		Message: fmt.Sprintf("The specified resource does not exist."),
 		Code:    http.StatusNotFound,
 	}
 }

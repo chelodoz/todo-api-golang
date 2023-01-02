@@ -1,9 +1,10 @@
 package todo
 
 import (
+	"errors"
 	"net/http"
 	"todo-api-golang/internal/entity"
-	"todo-api-golang/internal/errors"
+	appError "todo-api-golang/internal/error"
 	"todo-api-golang/pkg/util"
 
 	"github.com/go-playground/validator"
@@ -44,12 +45,12 @@ func (h *todoHandler) CreateTodo(rw http.ResponseWriter, r *http.Request) {
 
 	if err := util.ReadRequestBody(r, &createTodoRequest); err != nil {
 
-		util.WriteError(rw, errors.NewUnprocessableEntity())
+		util.WriteError(rw, appError.NewUnprocessableEntity())
 		return
 	}
 
 	if err := validate.Struct(&createTodoRequest); err != nil {
-		util.WriteError(rw, errors.NewBadRequest(err.Error()))
+		util.WriteError(rw, appError.NewBadRequest(err.Error()))
 		return
 	}
 
@@ -60,7 +61,7 @@ func (h *todoHandler) CreateTodo(rw http.ResponseWriter, r *http.Request) {
 	todo, err := h.service.CreateTodo(newTodo, r.Context())
 
 	if err != nil {
-		util.WriteError(rw, errors.NewInternal())
+		util.WriteError(rw, appError.NewInternal())
 		return
 	}
 
@@ -85,7 +86,7 @@ func (h *todoHandler) GetTodos(rw http.ResponseWriter, r *http.Request) {
 	todos, err := h.service.GetTodos(r.Context())
 
 	if err != nil {
-		util.WriteError(rw, errors.NewInternal())
+		util.WriteError(rw, appError.NewInternal())
 		return
 	}
 
@@ -112,11 +113,21 @@ func (h *todoHandler) GetTodos(rw http.ResponseWriter, r *http.Request) {
 
 //	GetTodo handles GET/{todoId} requests and returns a todo from the data store
 func (h *todoHandler) GetTodoById(rw http.ResponseWriter, r *http.Request) {
-	todoId := util.GetIntId(r, "todoId")
+	todoId, err := util.GetIntId(r, "todoId")
+	if err != nil {
+		util.WriteError(rw, appError.NewBadRequest(err.Error()))
+		return
+	}
+
 	todo, err := h.service.GetTodoById(todoId, r.Context())
 
 	if err != nil {
-		util.WriteError(rw, errors.NewInternal())
+		switch {
+		case errors.Is(err, appError.ErrTodoNotFound):
+			util.WriteError(rw, appError.NewNotFound())
+		default:
+			util.WriteError(rw, appError.NewInternal())
+		}
 		return
 	}
 
@@ -141,16 +152,20 @@ func (h *todoHandler) GetTodoById(rw http.ResponseWriter, r *http.Request) {
 //	UpdateTodoById handles PATCH requests and updates a todo into the data store
 func (h *todoHandler) UpdateTodoById(rw http.ResponseWriter, r *http.Request) {
 	var updateTodoRequest UpdateTodoRequest
-	todoId := util.GetIntId(r, "todoId")
+	todoId, err := util.GetIntId(r, "todoId")
+	if err != nil {
+		util.WriteError(rw, appError.NewBadRequest(err.Error()))
+		return
+	}
 
 	if err := util.ReadRequestBody(r, &updateTodoRequest); err != nil {
 
-		util.WriteError(rw, errors.NewUnprocessableEntity())
+		util.WriteError(rw, appError.NewUnprocessableEntity())
 		return
 	}
 
 	if err := validate.Struct(&updateTodoRequest); err != nil {
-		util.WriteError(rw, errors.NewBadRequest(err.Error()))
+		util.WriteError(rw, appError.NewBadRequest(err.Error()))
 		return
 	}
 
@@ -159,10 +174,15 @@ func (h *todoHandler) UpdateTodoById(rw http.ResponseWriter, r *http.Request) {
 		Name:        updateTodoRequest.Name,
 		Description: updateTodoRequest.Description,
 	}
-	_, err := h.service.UpdateTodo(updatedTodo, r.Context())
+	_, err = h.service.UpdateTodo(updatedTodo, r.Context())
 
 	if err != nil {
-		util.WriteError(rw, errors.NewInternal())
+		switch {
+		case errors.Is(err, appError.ErrTodoNotFound):
+			util.WriteError(rw, appError.NewNotFound())
+		default:
+			util.WriteError(rw, appError.NewInternal())
+		}
 		return
 	}
 
