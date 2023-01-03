@@ -5,10 +5,8 @@ If you're have not encountered Go before, you should visit this website <a targe
 After installing Go , you should run the following commands to experience this project
 
 
-## Open the code
-cd todo-api-golang/cmd/todo
-
 ## Start server and run the code
+cd todo-api-golang/cmd/todo
 go run main.go
 
 or F5 in vs code as the launch.json has a default configuration
@@ -20,9 +18,16 @@ After that, you have a RESTful API that is running at `http://127.0.0.1:8080`. I
       {
           "name": "Go to the bank",
           "description":"schedule an appointment to the bank",
-       }
+      }
       ```
   - `GET /api/v1/todos/{todoId}` : it allows the user to retrieve a todo information of a specific id
+  - `PATCH /api/v1/todos/{todoId}` : it allows the user to update a todo of a specific id
+    - ```JSON
+      {
+          "name": "Go to the bank",
+          "description":"schedule an appointment to the bank",
+      }
+      ```
 
 ## Project Layout
 
@@ -37,7 +42,8 @@ The project uses the following project layout:
 ├── internal           private application and library code
 │   ├── config           configuration library
 │   ├── entity           entity definitions and domain logic
-│   ├── errors           error types and handling
+│   ├── mocks            mock data from handlers, services and repositories
+│   ├── error            error types and handling
 │   └── todo             todo related features
 ├── pkg                public library code
 │   └── util             utils to handle http requests
@@ -58,3 +64,6 @@ as described in the [clean architecture](https://blog.cleancoder.com/uncle-bob/2
 ## Generate swagger documentation
 
 Use the command `make swagger` to generate the /docs/swagger.yaml and third_party/swagger-ui-4.11.1/swagger.json files from the go-swagger models
+
+## Generate mocks
+Use the command `make mocks` to generate the mocks of the interfaces in /internal/mocks folder

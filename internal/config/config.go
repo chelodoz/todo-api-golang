@@ -8,11 +8,6 @@ import (
 // The values are read by viper from a config file or environment variable.
 type Config struct {
 	HTTPServerAddress string `mapstructure:"HTTP_SERVER_ADDRESS"`
-	DBDriver          string `mapstructure:"DB_DRIVER"`
-	DBUser            string `mapstructure:"DB_USER"`
-	DBPassword        string `mapstructure:"DB_PASSWORD"`
-	DBName            string `mapstructure:"DB_NAME"`
-	DBPort            string `mapstructure:"DB_PORT"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
