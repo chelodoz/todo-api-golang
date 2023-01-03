@@ -5,13 +5,6 @@ import (
 	"todo-api-golang/internal/entity"
 )
 
-type TodoService interface {
-	CreateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
-	GetTodoById(id uint, ctx context.Context) (*entity.Todo, error)
-	GetTodos(ctx context.Context) ([]entity.Todo, error)
-	UpdateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
-}
-
 type todoService struct {
 	todoRepository TodoRepository
 }

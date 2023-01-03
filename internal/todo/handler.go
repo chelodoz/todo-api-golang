@@ -12,13 +12,6 @@ import (
 
 var validate *validator.Validate
 
-type TodoHandler interface {
-	CreateTodo(rw http.ResponseWriter, r *http.Request)
-	GetTodoById(rw http.ResponseWriter, r *http.Request)
-	GetTodos(rw http.ResponseWriter, r *http.Request)
-	UpdateTodoById(rw http.ResponseWriter, r *http.Request)
-}
-
 type todoHandler struct {
 	service TodoService
 }

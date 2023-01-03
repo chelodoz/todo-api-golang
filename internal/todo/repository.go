@@ -7,13 +7,6 @@ import (
 	appError "todo-api-golang/internal/error"
 )
 
-type TodoRepository interface {
-	CreateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
-	GetTodoById(id uint, ctx context.Context) (*entity.Todo, error)
-	GetTodos(ctx context.Context) ([]entity.Todo, error)
-	UpdateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
-}
-
 type todoRepository struct{}
 
 func NewTodoRepository() TodoRepository {
