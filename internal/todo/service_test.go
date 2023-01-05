@@ -8,11 +8,24 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
-
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestCreateTodo_ValidTestInput_ShouldReturnCreatedTodoWithoutError(t *testing.T) {
+type CreateTodoServiceTestSuite struct {
+	suite.Suite
+	todoService        TodoService
+	mockTodoRepository *mocks.TodoRepository
+}
+
+func TestCreateTodoTestSuite(t *testing.T) {
+	suite.Run(t, &CreateTodoHandlerTestSuite{})
+}
+
+func (suite *CreateTodoServiceTestSuite) SetupSuite() {
+	suite.mockTodoRepository = mocks.NewTodoRepository(suite.T())
+	suite.todoService = NewTodoService(suite.mockTodoRepository)
+}
+func (suite *CreateTodoServiceTestSuite) TestCreateTodo_ValidTestInput_ShouldReturnCreatedTodoWithoutError() {
 	todo := &entity.Todo{
 		ID:          uuid.New(),
 		Name:        "todo",
@@ -20,13 +33,10 @@ func TestCreateTodo_ValidTestInput_ShouldReturnCreatedTodoWithoutError(t *testin
 		CreatedAt:   time.Now().UTC(),
 	}
 
-	todoRepositoryMock := mocks.NewTodoRepository(t)
-	todoService := NewTodoService(todoRepositoryMock)
+	suite.mockTodoRepository.On("CreateTodo", mock.Anything, mock.Anything).Return(todo, nil)
 
-	todoRepositoryMock.On("CreateTodo", mock.Anything, mock.Anything).Return(todo, nil)
+	newTodo, err := suite.todoService.CreateTodo(todo, nil)
 
-	newTodo, err := todoService.CreateTodo(todo, nil)
-
-	assert.Nil(t, err)
-	assert.NotNil(t, newTodo)
+	suite.Nil(err)
+	suite.NotNil(newTodo)
 }

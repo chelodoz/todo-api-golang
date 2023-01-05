@@ -13,7 +13,7 @@ or F5 in vs code as the launch.json has a default configuration
 
 After that, you have a RESTful API that is running at `http://127.0.0.1:8080`. It provides us following endpoints
   - `GET api/v1/todos` : it provides us the list of all todos in memory
-  - `POST api/v1/todos` : it allows the user create a new todo. It saves the todo info into the memory slice and attached data like that:
+  - `POST api/v1/todos` : it allows the user create a new todo. It saves the todo info into mongo db  database and attached data like that:
     - ```JSON
       {
           "name": "Go to the bank",
@@ -24,10 +24,10 @@ After that, you have a RESTful API that is running at `http://127.0.0.1:8080`. I
   - `PATCH /api/v1/todos/{todoId}` : it allows the user to update a todo of a specific id
     - ```JSON
       {
-          "name": "Go to the bank",
-          "description":"schedule an appointment to the bank",
+          "name": "Go shopping",
+          "description":"buy groceries for the week",
       }
-      ```
+  - `GET /api/v1/swagger/` : access the swagger ui to see the api documentation
 
 ## Project Layout
 
@@ -70,4 +70,9 @@ Use the command `make swagger` to generate the /docs/swagger.yaml and third_part
 ## Generate mocks
 Use the command `make mocks` to generate the mocks of the interfaces in /internal/mocks folder.
 
-## 
+
+## Environment
+`app.env` file is provided in config directory for providing development environment variables, this application is a demo application and app.env will not be included in .gitignore.
+
+## Run
+To run the code, you will need docker and docker-compose installed on your machine. In the project root, run `docker-compose up`.
