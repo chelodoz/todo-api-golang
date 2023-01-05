@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 	"time"
-	"todo-api-golang/internal/apperror"
+	appError "todo-api-golang/internal/apperror"
 	"todo-api-golang/internal/config"
 	"todo-api-golang/internal/entity"
 
@@ -55,7 +55,7 @@ func (todoRepository *todoRepository) GetTodoById(id uuid.UUID, ctx context.Cont
 
 	err := collection.FindOne(context.TODO(), filter).Decode(&todo)
 	if err != nil {
-		return nil, apperror.ErrTodoNotFound
+		return nil, appError.ErrTodoNotFound
 	}
 
 	return &todo, nil
@@ -66,7 +66,7 @@ func (todoRepository *todoRepository) GetTodos(ctx context.Context) ([]entity.To
 	findOptions := options.Find()
 	findOptions.SetLimit(100)
 
-	todos := []entity.Todo{}
+	var todos []entity.Todo
 
 	collection := todoRepository.getCollection()
 
@@ -74,7 +74,7 @@ func (todoRepository *todoRepository) GetTodos(ctx context.Context) ([]entity.To
 	cur, err := collection.Find(ctx, bson.D{{}}, findOptions)
 	if err != nil {
 		log.Fatal(err)
-		return nil, apperror.ErrTodoNotFound
+		return nil, appError.ErrTodoNotFound
 	}
 
 	// Finding multiple documents returns a cursor
@@ -91,6 +91,10 @@ func (todoRepository *todoRepository) GetTodos(ctx context.Context) ([]entity.To
 	}
 
 	cur.Close(ctx)
+
+	if todos == nil {
+		return nil, appError.ErrTodoNotFound
+	}
 
 	return todos, nil
 }
@@ -110,7 +114,7 @@ func (todoRepository *todoRepository) UpdateTodo(todo *entity.Todo, ctx context.
 	result, err := collection.UpdateOne(ctx, filter, update)
 
 	if result.MatchedCount == 0 {
-		return nil, apperror.ErrTodoNotFound
+		return nil, appError.ErrTodoNotFound
 	}
 
 	if err != nil {

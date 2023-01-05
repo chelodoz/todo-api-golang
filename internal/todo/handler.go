@@ -3,7 +3,7 @@ package todo
 import (
 	"errors"
 	"net/http"
-	"todo-api-golang/internal/apperror"
+	appError "todo-api-golang/internal/apperror"
 	"todo-api-golang/internal/entity"
 	"todo-api-golang/pkg/error"
 	"todo-api-golang/pkg/util"
@@ -40,7 +40,6 @@ func (h *todoHandler) CreateTodo(rw http.ResponseWriter, r *http.Request) {
 	var createTodoRequest CreateTodoRequest
 
 	if err := util.ReadRequestBody(r, &createTodoRequest); err != nil {
-
 		util.WriteError(rw, error.NewUnprocessableEntity())
 		return
 	}
@@ -82,7 +81,12 @@ func (h *todoHandler) GetTodos(rw http.ResponseWriter, r *http.Request) {
 	todos, err := h.service.GetTodos(r.Context())
 
 	if err != nil {
-		util.WriteError(rw, error.NewInternal())
+		switch {
+		case errors.Is(err, appError.ErrTodoNotFound):
+			util.WriteResponse(rw, http.StatusOK, &GetTodosResponse{})
+		default:
+			util.WriteError(rw, error.NewInternal())
+		}
 		return
 	}
 
@@ -113,7 +117,7 @@ func (h *todoHandler) GetTodoById(rw http.ResponseWriter, r *http.Request) {
 	uid, err := uuid.Parse(todoId)
 
 	if err != nil {
-		util.WriteError(rw, error.NewUnprocessableEntity())
+		util.WriteError(rw, error.NewBadRequest(appError.ErrInvalidId.Error()))
 		return
 	}
 
@@ -121,7 +125,7 @@ func (h *todoHandler) GetTodoById(rw http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		switch {
-		case errors.Is(err, apperror.ErrTodoNotFound):
+		case errors.Is(err, appError.ErrTodoNotFound):
 			util.WriteError(rw, error.NewNotFound())
 		default:
 			util.WriteError(rw, error.NewInternal())
@@ -154,7 +158,7 @@ func (h *todoHandler) UpdateTodoById(rw http.ResponseWriter, r *http.Request) {
 	uid, err := uuid.Parse(todoId)
 
 	if err != nil {
-		util.WriteError(rw, error.NewUnprocessableEntity())
+		util.WriteError(rw, error.NewBadRequest(appError.ErrInvalidId.Error()))
 		return
 	}
 	if err := util.ReadRequestBody(r, &updateTodoRequest); err != nil {
@@ -177,7 +181,7 @@ func (h *todoHandler) UpdateTodoById(rw http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		switch {
-		case errors.Is(err, apperror.ErrTodoNotFound):
+		case errors.Is(err, appError.ErrTodoNotFound):
 			util.WriteError(rw, error.NewNotFound())
 		default:
 			util.WriteError(rw, error.NewInternal())

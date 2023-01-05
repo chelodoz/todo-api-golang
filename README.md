@@ -40,12 +40,14 @@ The project uses the following project layout:
 ├── config             configuration files for different environments
 ├── docs               api documentation
 ├── internal           private application and library code
+│   ├── apperror         custom app errors
 │   ├── config           configuration library
 │   ├── entity           entity definitions and domain logic
 │   ├── mocks            mock data from handlers, services and repositories
-│   ├── error            error types and handling
+│   ├── mongodb          mongo db client  
 │   └── todo             todo related features
 ├── pkg                public library code
+│   ├── error            standard api errors
 │   └── util             utils to handle http requests
 ├── third_party          third party libraries
 │    └── swagger-ui      static files from swagger ui
@@ -66,4 +68,6 @@ as described in the [clean architecture](https://blog.cleancoder.com/uncle-bob/2
 Use the command `make swagger` to generate the /docs/swagger.yaml and third_party/swagger-ui-4.11.1/swagger.json files from the go-swagger models
 
 ## Generate mocks
-Use the command `make mocks` to generate the mocks of the interfaces in /internal/mocks folder
+Use the command `make mocks` to generate the mocks of the interfaces in /internal/mocks folder.
+
+## 
