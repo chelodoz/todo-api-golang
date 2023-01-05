@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - 27017:27017
+    restart: unless-stopped
+
+  todoapi:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      HTTP_SERVER_ADDRESS: 0.0.0.0:8080
+      DB_HOST: mongodb
+      DB_PORT: 27017
+      DB_NAME: AppDb
+      DB_COLLECTION: todos
+    restart: on-failure
+    env_file:
+      - ./config/app.env
+    depends_on:
+      - mongodb
