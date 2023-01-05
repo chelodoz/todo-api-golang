@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 	"time"
+	"todo-api-golang/internal/apperror"
 	"todo-api-golang/internal/config"
 	"todo-api-golang/internal/entity"
-	appError "todo-api-golang/internal/error"
 
 	"github.com/google/uuid"
 
@@ -55,7 +55,7 @@ func (todoRepository *todoRepository) GetTodoById(id uuid.UUID, ctx context.Cont
 
 	err := collection.FindOne(context.TODO(), filter).Decode(&todo)
 	if err != nil {
-		return nil, appError.ErrTodoNotFound
+		return nil, apperror.ErrTodoNotFound
 	}
 
 	return &todo, nil
@@ -74,7 +74,7 @@ func (todoRepository *todoRepository) GetTodos(ctx context.Context) ([]entity.To
 	cur, err := collection.Find(ctx, bson.D{{}}, findOptions)
 	if err != nil {
 		log.Fatal(err)
-		return nil, appError.ErrTodoNotFound
+		return nil, apperror.ErrTodoNotFound
 	}
 
 	// Finding multiple documents returns a cursor
@@ -110,7 +110,7 @@ func (todoRepository *todoRepository) UpdateTodo(todo *entity.Todo, ctx context.
 	result, err := collection.UpdateOne(ctx, filter, update)
 
 	if result.MatchedCount == 0 {
-		return nil, appError.ErrTodoNotFound
+		return nil, apperror.ErrTodoNotFound
 	}
 
 	if err != nil {

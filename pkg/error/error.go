@@ -5,11 +5,6 @@ import (
 	"net/http"
 )
 
-var (
-	ErrInvalidId    = fmt.Errorf("invalid id")
-	ErrTodoNotFound = fmt.Errorf("todo not found")
-)
-
 //Type holds a type string and integer code for the error
 type Type string
 

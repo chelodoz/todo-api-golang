@@ -3,7 +3,7 @@ package util
 import (
 	"encoding/json"
 	"net/http"
-	appError "todo-api-golang/internal/error"
+	appError "todo-api-golang/pkg/error"
 
 	"github.com/gorilla/mux"
 )
