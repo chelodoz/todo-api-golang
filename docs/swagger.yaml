@@ -23,8 +23,7 @@ definitions:
         type: string
         x-go-name: Description
       id:
-        format: uint64
-        type: integer
+        type: string
         x-go-name: ID
       name:
         type: string
@@ -84,11 +83,10 @@ paths:
       operationId: todoIdQueryParamWrapper
       parameters:
       - description: The id of the todo for which the operation relates
-        format: uint64
         in: path
         name: todoId
         required: true
-        type: integer
+        type: string
         x-go-name: ID
       responses:
         "200":
@@ -101,11 +99,10 @@ paths:
       operationId: updateTodoRequestWrapper
       parameters:
       - description: The id of the todo for which the operation relates
-        format: uint64
         in: path
         name: todoId
         required: true
-        type: integer
+        type: string
         x-go-name: ID
       - in: body
         name: Body
@@ -129,8 +126,7 @@ responses:
       description:
         type: string
       id:
-        format: uint64
-        type: integer
+        type: string
       name:
         type: string
   GetTodoByIdResponse:
@@ -139,8 +135,7 @@ responses:
       description:
         type: string
       id:
-        format: uint64
-        type: integer
+        type: string
       name:
         type: string
   GetTodosResponse:

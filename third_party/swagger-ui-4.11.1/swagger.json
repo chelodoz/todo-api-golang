@@ -69,8 +69,7 @@
         "operationId": "todoIdQueryParamWrapper",
         "parameters": [
           {
-            "type": "integer",
-            "format": "uint64",
+            "type": "string",
             "x-go-name": "ID",
             "description": "The id of the todo for which the operation relates",
             "name": "todoId",
@@ -93,8 +92,7 @@
         "operationId": "updateTodoRequestWrapper",
         "parameters": [
           {
-            "type": "integer",
-            "format": "uint64",
+            "type": "string",
             "x-go-name": "ID",
             "description": "The id of the todo for which the operation relates",
             "name": "todoId",
@@ -150,8 +148,7 @@
           "x-go-name": "Description"
         },
         "id": {
-          "type": "integer",
-          "format": "uint64",
+          "type": "string",
           "x-go-name": "ID"
         },
         "name": {
@@ -189,8 +186,7 @@
           "type": "string"
         },
         "id": {
-          "type": "integer",
-          "format": "uint64"
+          "type": "string"
         },
         "name": {
           "type": "string"
@@ -204,8 +200,7 @@
           "type": "string"
         },
         "id": {
-          "type": "integer",
-          "format": "uint64"
+          "type": "string"
         },
         "name": {
           "type": "string"

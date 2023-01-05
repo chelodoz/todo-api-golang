@@ -3,7 +3,6 @@ package util
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 	appError "todo-api-golang/internal/error"
 
 	"github.com/gorilla/mux"
@@ -25,14 +24,9 @@ func WriteError(rw http.ResponseWriter, error *appError.ErrorResponse) error {
 	return nil
 }
 
-func GetIntId(r *http.Request, uriParam string) (uint, error) {
+func GetUriParam(r *http.Request, uriParam string) string {
 	vars := mux.Vars(r)
-	// convert the id into an integer and return
-	id, err := strconv.ParseUint(vars[uriParam], 10, 64)
-	if err != nil {
-		return 0, appError.ErrInvalidId
-	}
-	return uint(id), nil
+	return vars[uriParam]
 }
 
 func ReadRequestBody[T any](r *http.Request, data *T) error {

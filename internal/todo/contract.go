@@ -19,7 +19,7 @@ type UpdateTodoRequest struct {
 // Create a todo response
 // swagger:response CreateTodoResponse
 type CreateTodoResponse struct {
-	ID          uint   `json:"id"`
+	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }

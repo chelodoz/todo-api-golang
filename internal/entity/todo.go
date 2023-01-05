@@ -1,8 +1,15 @@
 package entity
 
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
 type Todo struct {
-	ID          uint   `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	CreatedAt   string `json:"-"`
+	ID          uuid.UUID `bson:"_id,omitempty"`
+	Name        string    `bson:"name"`
+	Description string    `bson:"description"`
+	CreatedAt   time.Time `bson:"createdAt,omitempty"`
+	UpdatedAt   time.Time `bson:"updatedAt,omitempty"`
 }

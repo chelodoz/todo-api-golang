@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"todo-api-golang/internal/entity"
+
+	"github.com/google/uuid"
 )
 
 type TodoHandler interface {
@@ -15,14 +17,14 @@ type TodoHandler interface {
 
 type TodoRepository interface {
 	CreateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
-	GetTodoById(id uint, ctx context.Context) (*entity.Todo, error)
+	GetTodoById(id uuid.UUID, ctx context.Context) (*entity.Todo, error)
 	GetTodos(ctx context.Context) ([]entity.Todo, error)
 	UpdateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
 }
 
 type TodoService interface {
 	CreateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
-	GetTodoById(id uint, ctx context.Context) (*entity.Todo, error)
+	GetTodoById(id uuid.UUID, ctx context.Context) (*entity.Todo, error)
 	GetTodos(ctx context.Context) ([]entity.Todo, error)
 	UpdateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
 }

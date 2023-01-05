@@ -3,6 +3,8 @@ package todo
 import (
 	"context"
 	"todo-api-golang/internal/entity"
+
+	"github.com/google/uuid"
 )
 
 type todoService struct {
@@ -34,7 +36,7 @@ func (service *todoService) UpdateTodo(todo *entity.Todo, ctx context.Context) (
 	return newTodo, nil
 }
 
-func (service *todoService) GetTodoById(id uint, ctx context.Context) (*entity.Todo, error) {
+func (service *todoService) GetTodoById(id uuid.UUID, ctx context.Context) (*entity.Todo, error) {
 
 	todoById, err := service.todoRepository.GetTodoById(id, ctx)
 

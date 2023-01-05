@@ -28,7 +28,7 @@ type updateTodoRequestWrapper struct {
 	// The id of the todo for which the operation relates
 	// in: path
 	// required: true
-	ID uint `json:"todoId"`
+	ID string `json:"todoId"`
 	// in: body
 	// required: true
 	Body UpdateTodoRequest
@@ -39,7 +39,7 @@ type todoIdQueryParamWrapper struct {
 	// The id of the todo for which the operation relates
 	// in: path
 	// required: true
-	ID uint `json:"todoId"`
+	ID string `json:"todoId"`
 }
 
 // No content is returned by this API endpoint

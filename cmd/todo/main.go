@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"todo-api-golang/internal/config"
+	"todo-api-golang/internal/mongodb"
 	"todo-api-golang/internal/todo"
 
 	"syscall"
@@ -25,7 +26,14 @@ func main() {
 
 func startHTTPServer(config config.Config) {
 
-	todoRepository := todo.NewTodoRepository()
+	mongoClient, err := mongodb.ConnectMongoDb(config.DBHost, config.DBPort)
+
+	if err != nil {
+		log.Printf("Error starting server: %s\n", err)
+		os.Exit(1)
+	}
+
+	todoRepository := todo.NewTodoRepository(mongoClient, &config)
 	todoService := todo.NewTodoService(todoRepository)
 	todoHandler := todo.NewTodoHandler(todoService)
 	router := todo.NewTodoRouter(todoHandler)

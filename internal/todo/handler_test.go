@@ -5,9 +5,11 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 	"todo-api-golang/internal/entity"
 	"todo-api-golang/internal/mocks"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/stretchr/testify/mock"
@@ -41,10 +43,10 @@ func (suite *CreateTodoTestSuite) TestCreateTodo_ValidTestInput_ShouldReturn201C
 	}`)
 
 	suite.mockTodoService.On("CreateTodo", mock.Anything, mock.Anything).Return(&entity.Todo{
-		ID:          3,
+		ID:          uuid.New(),
 		Name:        "test",
 		Description: "description",
-		CreatedAt:   "",
+		CreatedAt:   time.Now().UTC(),
 	}, nil)
 
 	// Act

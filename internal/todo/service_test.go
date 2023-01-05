@@ -2,9 +2,11 @@ package todo
 
 import (
 	"testing"
+	"time"
 	"todo-api-golang/internal/entity"
 	"todo-api-golang/internal/mocks"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/stretchr/testify/assert"
@@ -12,8 +14,10 @@ import (
 
 func TestCreateTodo_ValidTestInput_ShouldReturnCreatedTodoWithoutError(t *testing.T) {
 	todo := &entity.Todo{
+		ID:          uuid.New(),
 		Name:        "todo",
 		Description: "todo description",
+		CreatedAt:   time.Now().UTC(),
 	}
 
 	todoRepositoryMock := mocks.NewTodoRepository(t)
