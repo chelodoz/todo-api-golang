@@ -16,6 +16,7 @@ FROM alpine:3.17
 WORKDIR /build
 COPY --from=builder /build/todo .
 COPY --from=builder /build/config/app.env .
+COPY --from=builder /build/third_party/swagger-ui-4.11.1 /build/third_party/swagger-ui-4.11.1
 
 EXPOSE 8080
 

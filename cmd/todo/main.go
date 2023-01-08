@@ -39,7 +39,7 @@ func startHTTPServer(config config.Config) {
 	router := todo.NewTodoRouter(todoHandler)
 
 	// Swagger
-	router.PathPrefix("/swagger/").Handler(http.StripPrefix("/api/v1/swagger/", http.FileServer(http.Dir("./../../third_party/swagger-ui-4.11.1"))))
+	router.PathPrefix("/swagger/").Handler(http.StripPrefix("/api/v1/swagger/", http.FileServer(http.Dir("./third_party/swagger-ui-4.11.1"))))
 
 	// CORS
 	cors := handlers.CORS(handlers.AllowedOrigins([]string{"*"}))
