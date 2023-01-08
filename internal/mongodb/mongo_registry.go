@@ -2,12 +2,13 @@ package mongodb
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/bsoncodec"
 	"go.mongodb.org/mongo-driver/bson/bsonrw"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
-	"reflect"
 )
 
 var (

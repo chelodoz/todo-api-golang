@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.18.4-alpine3.16 AS builder
+FROM golang:1.19.4-alpine3.17 AS builder
 WORKDIR /build
 
 # Copy module files first so that they don't need to be downloaded again if no change
@@ -12,7 +12,7 @@ COPY . .
 RUN go build -o todo ./cmd/todo
 
 # Run stage
-FROM alpine:3.16
+FROM alpine:3.17
 WORKDIR /build
 COPY --from=builder /build/todo .
 COPY --from=builder /build/config/app.env .

@@ -4,15 +4,17 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"todo-api-golang/internal/config"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // ConnectMongoDb take mongodb url and related to connections
-func ConnectMongoDb(host string, port string) (*mongo.Client, error) {
+func ConnectMongoDb(config config.Config) (*mongo.Client, error) {
 
-	url := fmt.Sprintf("mongodb://%s:%s", host, port)
+	url := fmt.Sprintf("mongodb://%s:%s@%s:%s", config.MongoUsername, config.MongoPassword, config.MongoHost, config.MongoPort)
+
 	clientOptions := options.Client().ApplyURI(url).SetRegistry(mongoRegistry)
 
 	// Connect to MongoDB

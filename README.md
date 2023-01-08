@@ -72,7 +72,7 @@ Use the command `make mocks` to generate the mocks of the interfaces in /interna
 
 
 ## Environment
-`app.env` file is provided in config directory for providing development environment variables, this application is a demo application and app.env will not be included in .gitignore.
+The `app.env.example` file is provided in the config directory to provide development environment variables change it to app.env to make it work
 
 ## Run
-To run the code, you will need docker and docker-compose installed on your machine. In the project root, run `docker-compose up`.
+To run the code, you will need docker and docker-compose installed on your machine. In the project root, run `docker compose --env-file ./config/app.env up`.

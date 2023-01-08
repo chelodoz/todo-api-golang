@@ -2,7 +2,6 @@ package todo
 
 import (
 	"context"
-	"log"
 	"time"
 	appError "todo-api-golang/internal/apperror"
 	"todo-api-golang/internal/config"
@@ -27,7 +26,7 @@ func NewTodoRepository(client *mongo.Client, config *config.Config) TodoReposito
 
 func (todoRepository *todoRepository) getCollection() *mongo.Collection {
 
-	collection := todoRepository.client.Database(todoRepository.config.DBName).Collection(todoRepository.config.DBCollection)
+	collection := todoRepository.client.Database(todoRepository.config.MongoDatabase).Collection(todoRepository.config.MongoCollection)
 
 	return collection
 }
@@ -35,9 +34,15 @@ func (todoRepository *todoRepository) getCollection() *mongo.Collection {
 func (todoRepository *todoRepository) CreateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error) {
 
 	collection := todoRepository.getCollection()
-	todo.ID = uuid.New()
+
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return nil, err
+	}
+	todo.ID = id
+
 	todo.CreatedAt = time.Now().UTC()
-	_, err := collection.InsertOne(ctx, todo)
+	_, err = collection.InsertOne(ctx, todo)
 
 	if err != nil {
 		return nil, err
@@ -73,7 +78,6 @@ func (todoRepository *todoRepository) GetTodos(ctx context.Context) ([]entity.To
 	// Passing bson.D{{}} as the filter matches all documents in the collection
 	cur, err := collection.Find(ctx, bson.D{{}}, findOptions)
 	if err != nil {
-		log.Fatal(err)
 		return nil, appError.ErrTodoNotFound
 	}
 
@@ -83,7 +87,6 @@ func (todoRepository *todoRepository) GetTodos(ctx context.Context) ([]entity.To
 		// create a value into which the single document can be decoded
 		var todo entity.Todo
 		if err := cur.Decode(&todo); err != nil {
-			log.Fatal(err)
 			return nil, err
 		}
 

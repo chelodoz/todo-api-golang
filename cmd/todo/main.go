@@ -26,7 +26,7 @@ func main() {
 
 func startHTTPServer(config config.Config) {
 
-	mongoClient, err := mongodb.ConnectMongoDb(config.DBHost, config.DBPort)
+	mongoClient, err := mongodb.ConnectMongoDb(config)
 
 	if err != nil {
 		log.Printf("Error starting server: %s\n", err)

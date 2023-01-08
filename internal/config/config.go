@@ -8,10 +8,12 @@ import (
 // The values are read by viper from a config file or environment variable.
 type Config struct {
 	HTTPServerAddress string `mapstructure:"HTTP_SERVER_ADDRESS"`
-	DBHost            string `mapstructure:"DB_HOST"`
-	DBPort            string `mapstructure:"DB_PORT"`
-	DBName            string `mapstructure:"DB_NAME"`
-	DBCollection      string `mapstructure:"DB_COLLECTION"`
+	MongoHost         string `mapstructure:"MONGO_HOST"`
+	MongoPort         string `mapstructure:"MONGO_PORT"`
+	MongoDatabase     string `mapstructure:"MONGO_DATABASE"`
+	MongoCollection   string `mapstructure:"MONGO_COLLECTION"`
+	MongoUsername     string `mapstructure:"MONGO_USERNAME"`
+	MongoPassword     string `mapstructure:"MONGO_PASSWORD"`
 }
 
 // LoadConfig reads configuration from file or environment variables.

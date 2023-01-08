@@ -24,9 +24,15 @@ type CreateTodoResponse struct {
 	Description string `json:"description"`
 }
 
+type GetTodoResponse struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 // List todos returns
 // swagger:response GetTodosResponse
-type GetTodosResponse []CreateTodoResponse
+type GetTodosResponse []GetTodoResponse
 
 // A single todo returns in the response
 // swagger:response GetTodoByIdResponse
