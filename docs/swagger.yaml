@@ -1,162 +1,175 @@
 basePath: /api/v1
 consumes:
-- application/json
+    - application/json
 definitions:
-  CreateTodoRequest:
-    description: Create a todo request
-    properties:
-      description:
-        type: string
-        x-go-name: Description
-      name:
-        type: string
-        x-go-name: Name
-    required:
-    - name
-    - description
-    type: object
-    x-go-package: todo-api-golang/internal/todo
-  CreateTodoResponse:
-    description: Create a todo response
-    properties:
-      description:
-        type: string
-        x-go-name: Description
-      id:
-        type: string
-        x-go-name: ID
-      name:
-        type: string
-        x-go-name: Name
-    type: object
-    x-go-package: todo-api-golang/internal/todo
-  UpdateTodoRequest:
-    description: Update a todo request
-    properties:
-      description:
-        type: string
-        x-go-name: Description
-      name:
-        type: string
-        x-go-name: Name
-    required:
-    - name
-    - description
-    type: object
-    x-go-package: todo-api-golang/internal/todo
+    CreateTodoRequest:
+        description: Create a todo request
+        properties:
+            description:
+                type: string
+                x-go-name: Description
+            name:
+                type: string
+                x-go-name: Name
+        required:
+            - name
+            - description
+        type: object
+        x-go-package: todo-api-golang/internal/todo
+    GetTodoResponse:
+        properties:
+            description:
+                type: string
+                x-go-name: Description
+            id:
+                type: string
+                x-go-name: ID
+            name:
+                type: string
+                x-go-name: Name
+        type: object
+        x-go-package: todo-api-golang/internal/todo
+    UpdateTodoRequest:
+        description: Update a todo request
+        properties:
+            description:
+                type: string
+                x-go-name: Description
+            name:
+                type: string
+                x-go-name: Name
+        required:
+            - name
+            - description
+        type: object
+        x-go-package: todo-api-golang/internal/todo
 host: localhost:8080
 info:
-  description: Documentation for Todo API
-  title: Todo API
-  version: 1.0.0
+    description: '# Documentation for Todo API'
+    title: Todo API
+    version: 1.0.0
 paths:
-  /todos:
-    get:
-      description: Returns a list of todos from the database
-      operationId: Todos
-      responses:
-        "200":
-          $ref: '#/responses/GetTodosResponse'
-      summary: Returns a list of todos
-      tags:
-      - Todos
-    post:
-      description: Create a new todo in a database
-      operationId: createTodoRequestWrapper
-      parameters:
-      - in: body
-        name: Body
-        required: true
-        schema:
-          $ref: '#/definitions/CreateTodoRequest'
-      responses:
-        "201":
-          $ref: '#/responses/CreateTodoResponse'
-        "422":
-          $ref: '#/responses/errorResponseWrapper'
-      summary: Creates a new todo
-      tags:
-      - Todos
-  /todos/{todoId}:
-    get:
-      description: Returns a single todo from the database
-      operationId: todoIdQueryParamWrapper
-      parameters:
-      - description: The id of the todo for which the operation relates
-        in: path
-        name: todoId
-        required: true
-        type: string
-        x-go-name: ID
-      responses:
-        "200":
-          $ref: '#/responses/GetTodoByIdResponse'
-      summary: Returns a single todo
-      tags:
-      - Todos
-    patch:
-      description: Update a new todo in a database
-      operationId: updateTodoRequestWrapper
-      parameters:
-      - description: The id of the todo for which the operation relates
-        in: path
-        name: todoId
-        required: true
-        type: string
-        x-go-name: ID
-      - in: body
-        name: Body
-        required: true
-        schema:
-          $ref: '#/definitions/UpdateTodoRequest'
-      responses:
-        "204":
-          $ref: '#/responses/noContentResponseWrapper'
-        "422":
-          $ref: '#/responses/errorResponseWrapper'
-      summary: Update an existing todo
-      tags:
-      - Todos
+    /health:
+        get:
+            description: Check health of the api
+            operationId: Health
+            responses:
+                "200":
+                    $ref: '#/responses/helthReponseWrapper'
+            summary: Check health of the api
+            tags:
+                - Health
+    /todos:
+        get:
+            description: Returns a list of todos from the database
+            operationId: Todos
+            responses:
+                "200":
+                    $ref: '#/responses/GetTodosResponse'
+            summary: Returns a list of todos
+            tags:
+                - Todos
+        post:
+            description: Create a new todo in a database
+            operationId: createTodoRequestWrapper
+            parameters:
+                - in: body
+                  name: Body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/CreateTodoRequest'
+            responses:
+                "201":
+                    $ref: '#/responses/CreateTodoResponse'
+                "422":
+                    $ref: '#/responses/errorResponseWrapper'
+            summary: Creates a new todo
+            tags:
+                - Todos
+    /todos/{todoId}:
+        get:
+            description: Returns a single todo from the database
+            operationId: todoIdQueryParamWrapper
+            parameters:
+                - description: The id of the todo for which the operation relates
+                  in: path
+                  name: todoId
+                  required: true
+                  type: string
+                  x-go-name: ID
+            responses:
+                "200":
+                    $ref: '#/responses/GetTodoByIdResponse'
+            summary: Returns a single todo
+            tags:
+                - Todos
+        patch:
+            description: Update a new todo in a database
+            operationId: updateTodoRequestWrapper
+            parameters:
+                - description: The id of the todo for which the operation relates
+                  in: path
+                  name: todoId
+                  required: true
+                  type: string
+                  x-go-name: ID
+                - in: body
+                  name: Body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UpdateTodoRequest'
+            responses:
+                "204":
+                    $ref: '#/responses/noContentResponseWrapper'
+                "422":
+                    $ref: '#/responses/errorResponseWrapper'
+            summary: Update an existing todo
+            tags:
+                - Todos
 produces:
-- application/json
+    - application/json
 responses:
-  CreateTodoResponse:
-    description: Create a todo response
-    headers:
-      description:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-  GetTodoByIdResponse:
-    description: A single todo returns in the response
-    headers:
-      description:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-  GetTodosResponse:
-    description: List todos returns
-    schema:
-      items:
-        $ref: '#/definitions/CreateTodoResponse'
-      type: array
-  errorResponseWrapper:
-    description: ""
-    headers:
-      code:
-        format: int64
-        type: integer
-      message:
-        type: string
-      type:
-        type: string
-  noContentResponseWrapper:
-    description: No content is returned by this API endpoint
+    CreateTodoResponse:
+        description: Create a todo response
+        headers:
+            description:
+                type: string
+            id:
+                type: string
+            name:
+                type: string
+    GetTodoByIdResponse:
+        description: A single todo returns in the response
+        headers:
+            description:
+                type: string
+            id:
+                type: string
+            name:
+                type: string
+    GetTodosResponse:
+        description: List todos returns
+        schema:
+            items:
+                $ref: '#/definitions/GetTodoResponse'
+            type: array
+    errorResponseWrapper:
+        description: ""
+        headers:
+            code:
+                format: int64
+                type: integer
+            message:
+                type: string
+            type:
+                type: string
+    helthReponseWrapper:
+        description: Returns Healthy if the api is working
+        schema:
+            type: string
+    noContentResponseWrapper:
+        description: No content is returned by this API endpoint
 schemes:
-- http
-- https
+    - http
+    - https
 swagger: "2.0"

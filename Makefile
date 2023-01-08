@@ -1,5 +1,5 @@
 check_swagger_install:
-	which swagger || go get -u github.com/go-swagger/go-swagger/cmd/swagger
+	which swagger || go install github.com/go-swagger/go-swagger/cmd/swagger
 swagger: check_swagger_install
 	swagger generate spec -o ./docs/swagger.yaml --scan-models
 	swagger generate spec -o ./third_party/swagger-ui-4.11.1/swagger.json --scan-models

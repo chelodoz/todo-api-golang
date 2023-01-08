@@ -11,13 +11,28 @@
   ],
   "swagger": "2.0",
   "info": {
-    "description": "Documentation for Todo API",
+    "description": "# Documentation for Todo API",
     "title": "Todo API",
     "version": "1.0.0"
   },
   "host": "localhost:8080",
   "basePath": "/api/v1",
   "paths": {
+    "/health": {
+      "get": {
+        "description": "Check health of the api",
+        "tags": [
+          "Health"
+        ],
+        "summary": "Check health of the api",
+        "operationId": "Health",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/helthReponseWrapper"
+          }
+        }
+      }
+    },
     "/todos": {
       "get": {
         "description": "Returns a list of todos from the database",
@@ -139,8 +154,7 @@
       },
       "x-go-package": "todo-api-golang/internal/todo"
     },
-    "CreateTodoResponse": {
-      "description": "Create a todo response",
+    "GetTodoResponse": {
       "type": "object",
       "properties": {
         "description": {
@@ -212,7 +226,7 @@
       "schema": {
         "type": "array",
         "items": {
-          "$ref": "#/definitions/CreateTodoResponse"
+          "$ref": "#/definitions/GetTodoResponse"
         }
       }
     },
@@ -229,6 +243,12 @@
         "type": {
           "type": "string"
         }
+      }
+    },
+    "helthReponseWrapper": {
+      "description": "Returns Healthy if the api is working",
+      "schema": {
+        "type": "string"
       }
     },
     "noContentResponseWrapper": {

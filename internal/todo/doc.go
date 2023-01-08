@@ -1,6 +1,6 @@
 // Package classification Todo API
 //
-// Documentation for Todo API
+// # Documentation for Todo API
 //
 // Schemes: http, https
 // Host: localhost:8080
@@ -53,3 +53,7 @@ type errorResponseWrapper struct {
 	Message string `json:"message"`
 	Code    int    `json:"code"`
 }
+
+// Returns Healthy if the api is working
+// swagger:response helthReponseWrapper
+type helthReponseWrapper string
