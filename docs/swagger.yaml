@@ -2,8 +2,8 @@ basePath: /api/v1
 consumes:
     - application/json
 definitions:
-    CreateTodoRequest:
-        description: Create a todo request
+    CreateNoteRequest:
+        description: Create a note request
         properties:
             description:
                 type: string
@@ -15,8 +15,8 @@ definitions:
             - name
             - description
         type: object
-        x-go-package: todo-api-golang/internal/todo
-    GetTodoResponse:
+        x-go-package: todo-api-golang/internal/todo/note
+    GetNoteResponse:
         properties:
             description:
                 type: string
@@ -28,9 +28,9 @@ definitions:
                 type: string
                 x-go-name: Name
         type: object
-        x-go-package: todo-api-golang/internal/todo
-    UpdateTodoRequest:
-        description: Update a todo request
+        x-go-package: todo-api-golang/internal/todo/note
+    UpdateNoteRequest:
+        description: Update a note request
         properties:
             description:
                 type: string
@@ -42,7 +42,7 @@ definitions:
             - name
             - description
         type: object
-        x-go-package: todo-api-golang/internal/todo
+        x-go-package: todo-api-golang/internal/todo/note
 host: localhost:8080
 info:
     description: '# Documentation for Todo API'
@@ -59,57 +59,57 @@ paths:
             summary: Check health of the api
             tags:
                 - Health
-    /todos:
+    /notes:
         get:
-            description: Returns a list of todos from the database
-            operationId: Todos
+            description: Returns a list of notes from the database
+            operationId: Notes
             responses:
                 "200":
-                    $ref: '#/responses/GetTodosResponse'
-            summary: Returns a list of todos
+                    $ref: '#/responses/GetNotesResponse'
+            summary: Returns a list of notes
             tags:
-                - Todos
+                - Notes
         post:
-            description: Create a new todo in a database
-            operationId: createTodoRequestWrapper
+            description: Create a new note in a database
+            operationId: createNoteRequestWrapper
             parameters:
                 - in: body
                   name: Body
                   required: true
                   schema:
-                    $ref: '#/definitions/CreateTodoRequest'
+                    $ref: '#/definitions/CreateNoteRequest'
             responses:
                 "201":
-                    $ref: '#/responses/CreateTodoResponse'
+                    $ref: '#/responses/CreateNoteResponse'
                 "422":
                     $ref: '#/responses/errorResponseWrapper'
-            summary: Creates a new todo
+            summary: Creates a new note
             tags:
-                - Todos
-    /todos/{todoId}:
+                - Notes
+    /notes/{noteId}:
         get:
-            description: Returns a single todo from the database
-            operationId: todoIdQueryParamWrapper
+            description: Returns a single note from the database
+            operationId: noteIdQueryParamWrapper
             parameters:
-                - description: The id of the todo for which the operation relates
+                - description: The id of the note for which the operation relates
                   in: path
-                  name: todoId
+                  name: noteId
                   required: true
                   type: string
                   x-go-name: ID
             responses:
                 "200":
-                    $ref: '#/responses/GetTodoByIdResponse'
-            summary: Returns a single todo
+                    $ref: '#/responses/GetNoteByIdResponse'
+            summary: Returns a single note
             tags:
-                - Todos
+                - Notes
         patch:
-            description: Update a new todo in a database
-            operationId: updateTodoRequestWrapper
+            description: Update a new note in a database
+            operationId: updateNoteRequestWrapper
             parameters:
-                - description: The id of the todo for which the operation relates
+                - description: The id of the note for which the operation relates
                   in: path
-                  name: todoId
+                  name: noteId
                   required: true
                   type: string
                   x-go-name: ID
@@ -117,20 +117,20 @@ paths:
                   name: Body
                   required: true
                   schema:
-                    $ref: '#/definitions/UpdateTodoRequest'
+                    $ref: '#/definitions/UpdateNoteRequest'
             responses:
                 "204":
                     $ref: '#/responses/noContentResponseWrapper'
                 "422":
                     $ref: '#/responses/errorResponseWrapper'
-            summary: Update an existing todo
+            summary: Update an existing note
             tags:
-                - Todos
+                - Notes
 produces:
     - application/json
 responses:
-    CreateTodoResponse:
-        description: Create a todo response
+    CreateNoteResponse:
+        description: Create a note response
         headers:
             description:
                 type: string
@@ -138,8 +138,8 @@ responses:
                 type: string
             name:
                 type: string
-    GetTodoByIdResponse:
-        description: A single todo returns in the response
+    GetNoteByIdResponse:
+        description: A single note returns in the response
         headers:
             description:
                 type: string
@@ -147,11 +147,11 @@ responses:
                 type: string
             name:
                 type: string
-    GetTodosResponse:
-        description: List todos returns
+    GetNotesResponse:
+        description: List notes returns
         schema:
             items:
-                $ref: '#/definitions/GetTodoResponse'
+                $ref: '#/definitions/GetNoteResponse'
             type: array
     errorResponseWrapper:
         description: ""

@@ -14,32 +14,32 @@
 // - application/json
 //
 // swagger:meta
-package todo
+package note
 
-// swagger:parameters createTodoRequestWrapper
-type createTodoRequestWrapper struct {
+// swagger:parameters createNoteRequestWrapper
+type createNoteRequestWrapper struct {
 	// in: body
 	// required: true
-	Body CreateTodoRequest
+	Body CreateNoteRequest
 }
 
-// swagger:parameters updateTodoRequestWrapper
-type updateTodoRequestWrapper struct {
-	// The id of the todo for which the operation relates
+// swagger:parameters updateNoteRequestWrapper
+type updateNoteRequestWrapper struct {
+	// The id of the note for which the operation relates
 	// in: path
 	// required: true
-	ID string `json:"todoId"`
+	ID string `json:"noteId"`
 	// in: body
 	// required: true
-	Body UpdateTodoRequest
+	Body UpdateNoteRequest
 }
 
-// swagger:parameters todoIdQueryParamWrapper
-type todoIdQueryParamWrapper struct {
-	// The id of the todo for which the operation relates
+// swagger:parameters noteIdQueryParamWrapper
+type noteIdQueryParamWrapper struct {
+	// The id of the note for which the operation relates
 	// in: path
 	// required: true
-	ID string `json:"todoId"`
+	ID string `json:"noteId"`
 }
 
 // No content is returned by this API endpoint
@@ -53,7 +53,3 @@ type errorResponseWrapper struct {
 	Message string `json:"message"`
 	Code    int    `json:"code"`
 }
-
-// Returns Healthy if the api is working
-// swagger:response helthReponseWrapper
-type helthReponseWrapper string

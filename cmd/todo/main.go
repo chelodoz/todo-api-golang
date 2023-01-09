@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"todo-api-golang/internal/config"
-	"todo-api-golang/internal/mongodb"
+	"todo-api-golang/internal/platform/mongo"
 	"todo-api-golang/internal/todo"
 
 	"syscall"
@@ -26,17 +26,16 @@ func main() {
 
 func startHTTPServer(config config.Config) {
 
-	mongoClient, err := mongodb.ConnectMongoDb(config)
-
+	mongoClient, err := mongo.ConnectMongoDb(config)
 	if err != nil {
-		log.Printf("Error starting server: %s\n", err)
-		os.Exit(1)
+		log.Fatalf("Error starting mongo client: %s\n", err)
 	}
 
-	todoRepository := todo.NewTodoRepository(mongoClient, &config)
-	todoService := todo.NewTodoService(todoRepository)
-	todoHandler := todo.NewTodoHandler(todoService)
-	router := todo.NewTodoRouter(todoHandler)
+	router := todo.NewApi(config, mongoClient)
+
+	if err != nil {
+		log.Fatalf("Error starting server: %s\n", err)
+	}
 
 	// Swagger
 	router.PathPrefix("/swagger/").Handler(http.StripPrefix("/api/v1/swagger/", http.FileServer(http.Dir("./third_party/swagger-ui-4.11.1"))))
@@ -45,6 +44,7 @@ func startHTTPServer(config config.Config) {
 	cors := handlers.CORS(handlers.AllowedOrigins([]string{"*"}))
 
 	log := log.New(os.Stdout, "todo-api-golang ", log.LstdFlags)
+
 	// create a new server
 	server := http.Server{
 		Addr:         config.HTTPServerAddress, // configure the bind address
@@ -61,8 +61,7 @@ func startHTTPServer(config config.Config) {
 
 		err := http.ListenAndServe(config.HTTPServerAddress, router)
 		if err != nil {
-			log.Printf("Error starting server: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error starting server: %s\n", err)
 		}
 	}()
 

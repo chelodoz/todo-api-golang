@@ -33,40 +33,40 @@
         }
       }
     },
-    "/todos": {
+    "/notes": {
       "get": {
-        "description": "Returns a list of todos from the database",
+        "description": "Returns a list of notes from the database",
         "tags": [
-          "Todos"
+          "Notes"
         ],
-        "summary": "Returns a list of todos",
-        "operationId": "Todos",
+        "summary": "Returns a list of notes",
+        "operationId": "Notes",
         "responses": {
           "200": {
-            "$ref": "#/responses/GetTodosResponse"
+            "$ref": "#/responses/GetNotesResponse"
           }
         }
       },
       "post": {
-        "description": "Create a new todo in a database",
+        "description": "Create a new note in a database",
         "tags": [
-          "Todos"
+          "Notes"
         ],
-        "summary": "Creates a new todo",
-        "operationId": "createTodoRequestWrapper",
+        "summary": "Creates a new note",
+        "operationId": "createNoteRequestWrapper",
         "parameters": [
           {
             "name": "Body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateTodoRequest"
+              "$ref": "#/definitions/CreateNoteRequest"
             }
           }
         ],
         "responses": {
           "201": {
-            "$ref": "#/responses/CreateTodoResponse"
+            "$ref": "#/responses/CreateNoteResponse"
           },
           "422": {
             "$ref": "#/responses/errorResponseWrapper"
@@ -74,43 +74,43 @@
         }
       }
     },
-    "/todos/{todoId}": {
+    "/notes/{noteId}": {
       "get": {
-        "description": "Returns a single todo from the database",
+        "description": "Returns a single note from the database",
         "tags": [
-          "Todos"
+          "Notes"
         ],
-        "summary": "Returns a single todo",
-        "operationId": "todoIdQueryParamWrapper",
+        "summary": "Returns a single note",
+        "operationId": "noteIdQueryParamWrapper",
         "parameters": [
           {
             "type": "string",
             "x-go-name": "ID",
-            "description": "The id of the todo for which the operation relates",
-            "name": "todoId",
+            "description": "The id of the note for which the operation relates",
+            "name": "noteId",
             "in": "path",
             "required": true
           }
         ],
         "responses": {
           "200": {
-            "$ref": "#/responses/GetTodoByIdResponse"
+            "$ref": "#/responses/GetNoteByIdResponse"
           }
         }
       },
       "patch": {
-        "description": "Update a new todo in a database",
+        "description": "Update a new note in a database",
         "tags": [
-          "Todos"
+          "Notes"
         ],
-        "summary": "Update an existing todo",
-        "operationId": "updateTodoRequestWrapper",
+        "summary": "Update an existing note",
+        "operationId": "updateNoteRequestWrapper",
         "parameters": [
           {
             "type": "string",
             "x-go-name": "ID",
-            "description": "The id of the todo for which the operation relates",
-            "name": "todoId",
+            "description": "The id of the note for which the operation relates",
+            "name": "noteId",
             "in": "path",
             "required": true
           },
@@ -119,7 +119,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateTodoRequest"
+              "$ref": "#/definitions/UpdateNoteRequest"
             }
           }
         ],
@@ -135,8 +135,8 @@
     }
   },
   "definitions": {
-    "CreateTodoRequest": {
-      "description": "Create a todo request",
+    "CreateNoteRequest": {
+      "description": "Create a note request",
       "type": "object",
       "required": [
         "name",
@@ -152,9 +152,9 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "todo-api-golang/internal/todo"
+      "x-go-package": "todo-api-golang/internal/todo/note"
     },
-    "GetTodoResponse": {
+    "GetNoteResponse": {
       "type": "object",
       "properties": {
         "description": {
@@ -170,10 +170,10 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "todo-api-golang/internal/todo"
+      "x-go-package": "todo-api-golang/internal/todo/note"
     },
-    "UpdateTodoRequest": {
-      "description": "Update a todo request",
+    "UpdateNoteRequest": {
+      "description": "Update a note request",
       "type": "object",
       "required": [
         "name",
@@ -189,12 +189,12 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "todo-api-golang/internal/todo"
+      "x-go-package": "todo-api-golang/internal/todo/note"
     }
   },
   "responses": {
-    "CreateTodoResponse": {
-      "description": "Create a todo response",
+    "CreateNoteResponse": {
+      "description": "Create a note response",
       "headers": {
         "description": {
           "type": "string"
@@ -207,8 +207,8 @@
         }
       }
     },
-    "GetTodoByIdResponse": {
-      "description": "A single todo returns in the response",
+    "GetNoteByIdResponse": {
+      "description": "A single note returns in the response",
       "headers": {
         "description": {
           "type": "string"
@@ -221,12 +221,12 @@
         }
       }
     },
-    "GetTodosResponse": {
-      "description": "List todos returns",
+    "GetNotesResponse": {
+      "description": "List notes returns",
       "schema": {
         "type": "array",
         "items": {
-          "$ref": "#/definitions/GetTodoResponse"
+          "$ref": "#/definitions/GetNoteResponse"
         }
       }
     },

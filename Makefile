@@ -7,7 +7,7 @@ swagger: check_swagger_install
 check_mockery_install:
 	which mockery || go install github.com/vektra/mockery/v2@latest
 mocks: check_mockery_install
-	cd internal && mockery --all
+	cd internal && mockery --all --inpackage
 
 build:
 	docker compose --env-file ./config/app.env up --build

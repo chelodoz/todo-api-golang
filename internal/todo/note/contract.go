@@ -1,42 +1,42 @@
-package todo
+package note
 
-// Create a todo request
-type CreateTodoRequest struct {
+// Create a note request
+type CreateNoteRequest struct {
 	// required: true
 	Name string `json:"name" validate:"required"`
 	// required: true
 	Description string `json:"description" validate:"required"`
 }
 
-// Update a todo request
-type UpdateTodoRequest struct {
+// Update a note request
+type UpdateNoteRequest struct {
 	// required: true
 	Name string `json:"name" validate:"required"`
 	// required: true
 	Description string `json:"description" validate:"required"`
 }
 
-// Create a todo response
-// swagger:response CreateTodoResponse
-type CreateTodoResponse struct {
+// Create a note response
+// swagger:response CreateNoteResponse
+type CreateNoteResponse struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
-type GetTodoResponse struct {
+type GetNoteResponse struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
-// List todos returns
-// swagger:response GetTodosResponse
-type GetTodosResponse []GetTodoResponse
+// List notes returns
+// swagger:response GetNotesResponse
+type GetNotesResponse []GetNoteResponse
 
-// A single todo returns in the response
-// swagger:response GetTodoByIdResponse
-type GetTodoByIdResponse CreateTodoResponse
+// A single note returns in the response
+// swagger:response GetNoteByIdResponse
+type GetNoteByIdResponse CreateNoteResponse
 
 type ErrorResponse struct {
 	Status  int    `json:"status"`

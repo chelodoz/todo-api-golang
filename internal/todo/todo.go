@@ -1,30 +1,34 @@
 package todo
 
 import (
-	"context"
 	"net/http"
-	"todo-api-golang/internal/entity"
+	"todo-api-golang/internal/config"
+	"todo-api-golang/internal/todo/note"
+	"todo-api-golang/pkg/health"
 
-	"github.com/google/uuid"
+	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type TodoHandler interface {
-	CreateTodo(rw http.ResponseWriter, r *http.Request)
-	GetTodoById(rw http.ResponseWriter, r *http.Request)
-	GetTodos(rw http.ResponseWriter, r *http.Request)
-	UpdateTodoById(rw http.ResponseWriter, r *http.Request)
+// NewApi creates the default configuration for the http server and set up routing.
+func NewApi(config config.Config, mongoClient *mongo.Client) *mux.Router {
+
+	noteRepository := note.NewRepository(mongoClient, &config)
+	noteService := note.NewService(noteRepository)
+	noteHandler := note.NewHandler(noteService)
+
+	return setupRouter(noteHandler)
 }
 
-type TodoRepository interface {
-	CreateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
-	GetTodoById(id uuid.UUID, ctx context.Context) (*entity.Todo, error)
-	GetTodos(ctx context.Context) ([]entity.Todo, error)
-	UpdateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
-}
+func setupRouter(noteHandler note.Handler) *mux.Router {
+	router := mux.NewRouter()
+	base := router.PathPrefix("/api/v1").Subrouter()
 
-type TodoService interface {
-	CreateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
-	GetTodoById(id uuid.UUID, ctx context.Context) (*entity.Todo, error)
-	GetTodos(ctx context.Context) ([]entity.Todo, error)
-	UpdateTodo(todo *entity.Todo, ctx context.Context) (*entity.Todo, error)
+	base.HandleFunc("/health", health.HealthCheck).Methods(http.MethodGet)
+	base.HandleFunc("/notes", noteHandler.GetAll).Methods(http.MethodGet)
+	base.HandleFunc("/notes", noteHandler.Create).Methods(http.MethodPost)
+	base.HandleFunc("/notes/{noteId}", noteHandler.GetById).Methods(http.MethodGet)
+	base.HandleFunc("/notes/{noteId}", noteHandler.Update).Methods(http.MethodPatch)
+
+	return base
 }

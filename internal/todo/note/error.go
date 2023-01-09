@@ -1,4 +1,4 @@
-package apperror
+package note
 
 import (
 	"fmt"
@@ -6,5 +6,5 @@ import (
 
 var (
 	ErrInvalidId    = fmt.Errorf("invalid id")
-	ErrTodoNotFound = fmt.Errorf("todo not found")
+	ErrNoteNotFound = fmt.Errorf("todo not found")
 )
