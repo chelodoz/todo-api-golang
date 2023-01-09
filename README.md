@@ -63,7 +63,7 @@ Within `internal` and `pkg`, packages are structured by features in order to ach
 [screaming architecture](https://blog.cleancoder.com/uncle-bob/2011/09/30/Screaming-Architecture.html). For example, 
 the `todo` directory contains the application logic related with the todo feature. 
 
-Within each feature package, code are organized in layers (API, service, repository), following the dependency guidelines
+Within each feature package, code are organized in layers (handler, service, repository), following the dependency guidelines
 as described in the [clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html).
 
 ## Generate swagger documentation
