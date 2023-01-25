@@ -19,91 +19,82 @@ type repository struct {
 }
 
 func NewRepository(client *mongo.Client, config *config.Config) Repository {
-	return &repository{client, config}
+	return &repository{
+		client: client,
+		config: config,
+	}
 }
 
-func (repository *repository) getCollection() *mongo.Collection {
-
-	collection := repository.client.Database(repository.config.MongoDatabase).Collection(repository.config.MongoCollection)
-
-	return collection
+func (r *repository) getCollection() *mongo.Collection {
+	return r.client.Database(r.config.MongoDatabase).Collection(r.config.MongoCollection)
 }
 
-func (repository *repository) Create(note *Note, ctx context.Context) (*Note, error) {
+func (r *repository) Create(note *Note, ctx context.Context) (*Note, error) {
 
-	collection := repository.getCollection()
+	collection := r.getCollection()
 
 	id, err := uuid.NewRandom()
 	if err != nil {
-		return nil, err
+		return nil, ErrCreatingNoteId
 	}
 	note.ID = id
-
 	note.CreatedAt = time.Now().UTC()
+
 	_, err = collection.InsertOne(ctx, note)
 
 	if err != nil {
-		return nil, err
+		return nil, ErrCreatingNote
 	}
 
 	return note, nil
 }
 
-func (repository *repository) GetById(id uuid.UUID, ctx context.Context) (*Note, error) {
+func (r *repository) GetById(id uuid.UUID, ctx context.Context) (*Note, error) {
 	var note Note
 
-	collection := repository.getCollection()
-
+	collection := r.getCollection()
 	filter := bson.M{"_id": id}
 
-	err := collection.FindOne(context.TODO(), filter).Decode(&note)
+	err := collection.FindOne(ctx, filter).Decode(&note)
 	if err != nil {
-		return nil, ErrNoteNotFound
+		return nil, ErrFoundingNote
 	}
 
 	return &note, nil
 }
 
-func (repository *repository) GetAll(ctx context.Context) ([]Note, error) {
+func (r *repository) GetAll(ctx context.Context) ([]Note, error) {
+	var notes []Note
 
 	findOptions := options.Find()
 	findOptions.SetLimit(100)
 
-	var notes []Note
+	collection := r.getCollection()
 
-	collection := repository.getCollection()
-
-	// Passing bson.D{{}} as the filter matches all documents in the collection
 	cur, err := collection.Find(ctx, bson.D{{}}, findOptions)
 	if err != nil {
-		return nil, ErrNoteNotFound
+		return nil, ErrFoundingNote
 	}
 
-	// Finding multiple documents returns a cursor
-	// Iterating through the cursor allows us to decode documents one at a time
-	for cur.Next(context.TODO()) {
-		// create a value into which the single document can be decoded
+	for cur.Next(ctx) {
 		var note Note
 		if err := cur.Decode(&note); err != nil {
-			return nil, err
+			return nil, ErrDecodingNote
 		}
 
 		notes = append(notes, note)
 	}
-
 	cur.Close(ctx)
 
 	if notes == nil {
-		return nil, ErrNoteNotFound
+		return nil, ErrFoundingNote
 	}
 
 	return notes, nil
 }
 
-func (repository *repository) Update(note *Note, ctx context.Context) (*Note, error) {
-
-	collection := repository.getCollection()
-
+func (r *repository) Update(note *Note, ctx context.Context) (*Note, error) {
+	collection := r.getCollection()
 	filter := bson.M{"_id": note.ID}
 
 	note.UpdatedAt = time.Now().UTC()
@@ -115,11 +106,11 @@ func (repository *repository) Update(note *Note, ctx context.Context) (*Note, er
 	result, err := collection.UpdateOne(ctx, filter, update)
 
 	if result.MatchedCount == 0 {
-		return nil, ErrNoteNotFound
+		return nil, ErrFoundingNote
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, ErrUpdatingNote
 	}
 
 	return note, nil

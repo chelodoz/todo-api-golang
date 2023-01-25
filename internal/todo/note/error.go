@@ -1,10 +1,14 @@
 package note
 
 import (
-	"fmt"
+	"errors"
 )
 
 var (
-	ErrInvalidId    = fmt.Errorf("invalid id")
-	ErrNoteNotFound = fmt.Errorf("todo not found")
+	ErrInvalidNoteId  = errors.New("error invalid id")
+	ErrCreatingNoteId = errors.New("error creating note id")
+	ErrDecodingNote   = errors.New("error decoding note")
+	ErrUpdatingNote   = errors.New("error updating note")
+	ErrCreatingNote   = errors.New("error creating note")
+	ErrFoundingNote   = errors.New("error founding note")
 )

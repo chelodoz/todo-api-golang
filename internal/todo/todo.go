@@ -10,25 +10,32 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+type APIServer struct {
+	NoteHandler note.Handler
+}
+
 // NewApi creates the default configuration for the http server and set up routing.
-func NewApi(config config.Config, mongoClient *mongo.Client) *mux.Router {
+func NewApi(config config.Config, mongoClient *mongo.Client) *APIServer {
 
 	noteRepository := note.NewRepository(mongoClient, &config)
 	noteService := note.NewService(noteRepository)
 	noteHandler := note.NewHandler(noteService)
 
-	return setupRouter(noteHandler)
+	return &APIServer{
+		NoteHandler: noteHandler,
+	}
 }
 
-func setupRouter(noteHandler note.Handler) *mux.Router {
+// SetupRoutes create the routes for the todo api
+func (api *APIServer) SetupRouter() *mux.Router {
 	router := mux.NewRouter()
 	base := router.PathPrefix("/api/v1").Subrouter()
 
 	base.HandleFunc("/health", health.HealthCheck).Methods(http.MethodGet)
-	base.HandleFunc("/notes", noteHandler.GetAll).Methods(http.MethodGet)
-	base.HandleFunc("/notes", noteHandler.Create).Methods(http.MethodPost)
-	base.HandleFunc("/notes/{noteId}", noteHandler.GetById).Methods(http.MethodGet)
-	base.HandleFunc("/notes/{noteId}", noteHandler.Update).Methods(http.MethodPatch)
+	base.HandleFunc("/notes", api.NoteHandler.GetAll).Methods(http.MethodGet)
+	base.HandleFunc("/notes", api.NoteHandler.Create).Methods(http.MethodPost)
+	base.HandleFunc("/notes/{noteId}", api.NoteHandler.GetById).Methods(http.MethodGet)
+	base.HandleFunc("/notes/{noteId}", api.NoteHandler.Update).Methods(http.MethodPatch)
 
 	return base
 }

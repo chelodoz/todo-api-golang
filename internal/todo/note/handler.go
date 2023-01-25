@@ -11,16 +11,15 @@ import (
 	"github.com/go-playground/validator"
 )
 
-var validate *validator.Validate
-
 type handler struct {
-	service Service
+	service  Service
+	validate *validator.Validate
 }
 
 func NewHandler(service Service) Handler {
-	validate = validator.New()
 	return &handler{
-		service: service,
+		service:  service,
+		validate: validator.New(),
 	}
 }
 
@@ -42,8 +41,8 @@ func (h *handler) Create(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validate.Struct(&createNoteRequest); err != nil {
-		util.WriteError(rw, error.NewBadRequest(err.Error()))
+	if err := h.validate.Struct(&createNoteRequest); err != nil {
+		util.WriteError(rw, error.NewValidationBadRequest(err.(validator.ValidationErrors)))
 		return
 	}
 
@@ -80,7 +79,7 @@ func (h *handler) GetAll(rw http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		switch {
-		case errors.Is(err, ErrNoteNotFound):
+		case errors.Is(err, ErrFoundingNote):
 			util.WriteResponse(rw, http.StatusOK, &GetNotesResponse{})
 		default:
 			util.WriteError(rw, error.NewInternal())
@@ -111,11 +110,15 @@ func (h *handler) GetAll(rw http.ResponseWriter, r *http.Request) {
 
 // GetNote handles GET/{noteId} requests and returns a note from the data store
 func (h *handler) GetById(rw http.ResponseWriter, r *http.Request) {
-	noteId := util.GetUriParam(r, "noteId")
-	uid, err := uuid.Parse(noteId)
-
+	noteId, err := util.GetUriParam(r, "noteId")
 	if err != nil {
-		util.WriteError(rw, error.NewBadRequest(ErrInvalidId.Error()))
+		util.WriteError(rw, error.NewBadRequest(ErrInvalidNoteId.Error()))
+		return
+	}
+
+	uid, err := uuid.Parse(noteId)
+	if err != nil {
+		util.WriteError(rw, error.NewBadRequest(ErrInvalidNoteId.Error()))
 		return
 	}
 
@@ -123,7 +126,7 @@ func (h *handler) GetById(rw http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		switch {
-		case errors.Is(err, ErrNoteNotFound):
+		case errors.Is(err, ErrFoundingNote):
 			util.WriteError(rw, error.NewNotFound())
 		default:
 			util.WriteError(rw, error.NewInternal())
@@ -152,20 +155,25 @@ func (h *handler) GetById(rw http.ResponseWriter, r *http.Request) {
 // Update handles PATCH requests and updates a note into the data store
 func (h *handler) Update(rw http.ResponseWriter, r *http.Request) {
 	var updateNoteRequest UpdateNoteRequest
-	noteId := util.GetUriParam(r, "noteId")
-	uid, err := uuid.Parse(noteId)
-
+	noteId, err := util.GetUriParam(r, "noteId")
 	if err != nil {
-		util.WriteError(rw, error.NewBadRequest(ErrInvalidId.Error()))
+		util.WriteError(rw, error.NewBadRequest(ErrInvalidNoteId.Error()))
 		return
 	}
+
+	uid, err := uuid.Parse(noteId)
+	if err != nil {
+		util.WriteError(rw, error.NewBadRequest(ErrInvalidNoteId.Error()))
+		return
+	}
+
 	if err := util.ReadRequestBody(r, &updateNoteRequest); err != nil {
 		util.WriteError(rw, error.NewUnprocessableEntity())
 		return
 	}
 
-	if err := validate.Struct(&updateNoteRequest); err != nil {
-		util.WriteError(rw, error.NewBadRequest(err.Error()))
+	if err := h.validate.Struct(&updateNoteRequest); err != nil {
+		util.WriteError(rw, error.NewValidationBadRequest(err.(validator.ValidationErrors)))
 		return
 	}
 
@@ -179,7 +187,7 @@ func (h *handler) Update(rw http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		switch {
-		case errors.Is(err, ErrNoteNotFound):
+		case errors.Is(err, ErrFoundingNote):
 			util.WriteError(rw, error.NewNotFound())
 		default:
 			util.WriteError(rw, error.NewInternal())

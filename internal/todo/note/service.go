@@ -14,8 +14,8 @@ func NewService(repository Repository) Service {
 	return &service{repository}
 }
 
-func (service *service) Create(note *Note, ctx context.Context) (*Note, error) {
-	newNote, err := service.repository.Create(note, ctx)
+func (s *service) Create(note *Note, ctx context.Context) (*Note, error) {
+	newNote, err := s.repository.Create(note, ctx)
 
 	if err != nil {
 		return nil, err
@@ -23,8 +23,8 @@ func (service *service) Create(note *Note, ctx context.Context) (*Note, error) {
 
 	return newNote, nil
 }
-func (service *service) Update(note *Note, ctx context.Context) (*Note, error) {
-	newNote, err := service.repository.Update(note, ctx)
+func (s *service) Update(note *Note, ctx context.Context) (*Note, error) {
+	newNote, err := s.repository.Update(note, ctx)
 
 	if err != nil {
 		return nil, err
@@ -33,19 +33,19 @@ func (service *service) Update(note *Note, ctx context.Context) (*Note, error) {
 	return newNote, nil
 }
 
-func (service *service) GetById(id uuid.UUID, ctx context.Context) (*Note, error) {
+func (s *service) GetById(id uuid.UUID, ctx context.Context) (*Note, error) {
 
-	noteById, err := service.repository.GetById(id, ctx)
+	note, err := s.repository.GetById(id, ctx)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return noteById, nil
+	return note, nil
 }
-func (service *service) GetAll(ctx context.Context) ([]Note, error) {
+func (s *service) GetAll(ctx context.Context) ([]Note, error) {
 
-	notes, err := service.repository.GetAll(ctx)
+	notes, err := s.repository.GetAll(ctx)
 
 	if err != nil {
 		return nil, err

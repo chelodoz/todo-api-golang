@@ -3,33 +3,32 @@ package error
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/go-playground/validator"
 )
 
-//Type holds a type string and integer code for the error
+// Type holds a type string and integer code for the error
 type Type string
 
 // "Set" of valid errorTypes
 const (
 	Authorization        Type = "AUTHORIZATION"          // Authentication Failures -
 	BadRequest           Type = "BAD_REQUEST"            // Validation errors / BadInput
-	Conflict             Type = "CONFLICT"               // Already exists (eg, create account with existent email) - 409
+	Conflict             Type = "CONFLICT"               // Resource already exists 409
 	Internal             Type = "INTERNAL"               // Server (500) and fallback errors
 	NotFound             Type = "NOT_FOUND"              // For not finding resource
 	UnprocessableEntity  Type = "UNPROCESSABLE_ENTITY"   // Not able to decode the JSON request - 422
 	PayloadTooLarge      Type = "PAYLOAD_TOO_LARGE"      // For uploading tons of JSON, or an image over the limit - 413
 	ServiceUnavailable   Type = "SERVICE_UNAVAILABLE"    // For long running handlers
-	UnsupportedMediaType Type = "UNSUPPORTED_MEDIA_TYPE" // for http 415
+	UnsupportedMediaType Type = "UNSUPPORTED_MEDIA_TYPE" // For http 415
 )
 
 type ErrorResponse struct {
-	Type    Type   `json:"type"`
-	Message string `json:"message"`
-	Code    int    `json:"code"`
+	Type    Type              `json:"type"`
+	Message string            `json:"message"`
+	Code    int               `json:"code"`
+	Errors  []validationError `json:"errors,omitempty"`
 }
-
-/*
-* Error "Factories"
- */
 
 // NewAuthorization to create a 401
 func NewAuthorization(reason string) *ErrorResponse {
@@ -40,12 +39,42 @@ func NewAuthorization(reason string) *ErrorResponse {
 	}
 }
 
-// NewBadRequest to create 400 errors (validation, for example)
+// NewBadRequest to create 400 errors
 func NewBadRequest(reason string) *ErrorResponse {
 	return &ErrorResponse{
 		Type:    BadRequest,
 		Message: reason,
 		Code:    http.StatusBadRequest,
+	}
+}
+
+type validationError struct {
+	Field string `json:"field"`
+	Error string `json:"error"`
+}
+
+// NewValidationBadRequest to create 400 validation errors
+func NewValidationBadRequest(ve validator.ValidationErrors) *ErrorResponse {
+	var validationErrors []validationError
+	for _, fe := range ve {
+		validationErrors = append(validationErrors, validationError{fe.Field(), msgForTag(fe.Tag())})
+	}
+
+	return &ErrorResponse{
+		Type:    BadRequest,
+		Message: "One of the request inputs is not valid.",
+		Code:    http.StatusBadRequest,
+		Errors:  validationErrors,
+	}
+}
+
+// msgForTag create a simple mapper from the validators tags to a custom message
+func msgForTag(tag string) string {
+	switch tag {
+	case "required":
+		return "This field is required."
+	default:
+		return tag
 	}
 }
 
@@ -62,7 +91,7 @@ func NewConflict(name string, value string) *ErrorResponse {
 func NewUnprocessableEntity() *ErrorResponse {
 	return &ErrorResponse{
 		Type:    UnprocessableEntity,
-		Message: fmt.Sprintf("Unable to process the request"),
+		Message: "Unable to process the request.",
 		Code:    http.StatusUnprocessableEntity,
 	}
 }
@@ -71,7 +100,7 @@ func NewUnprocessableEntity() *ErrorResponse {
 func NewInternal() *ErrorResponse {
 	return &ErrorResponse{
 		Type:    Internal,
-		Message: fmt.Sprintf("Internal server error."),
+		Message: "Internal server error.",
 		Code:    http.StatusInternalServerError,
 	}
 }
@@ -80,7 +109,7 @@ func NewInternal() *ErrorResponse {
 func NewNotFound() *ErrorResponse {
 	return &ErrorResponse{
 		Type:    NotFound,
-		Message: fmt.Sprintf("The specified resource does not exist."),
+		Message: "The specified resource does not exist.",
 		Code:    http.StatusNotFound,
 	}
 }
@@ -89,7 +118,7 @@ func NewNotFound() *ErrorResponse {
 func NewPayloadTooLarge(maxBodySize int64, contentLength int64) *ErrorResponse {
 	return &ErrorResponse{
 		Type:    PayloadTooLarge,
-		Message: fmt.Sprintf("Max payload size of %v exceeded. Actual payload size: %v", maxBodySize, contentLength),
+		Message: fmt.Sprintf("Max payload size of %v exceeded. Actual payload size: %v.", maxBodySize, contentLength),
 		Code:    http.StatusRequestEntityTooLarge,
 	}
 }
@@ -98,7 +127,7 @@ func NewPayloadTooLarge(maxBodySize int64, contentLength int64) *ErrorResponse {
 func NewServiceUnavailable() *ErrorResponse {
 	return &ErrorResponse{
 		Type:    ServiceUnavailable,
-		Message: fmt.Sprintf("Service unavailable or timed out"),
+		Message: "Service unavailable or timed out.",
 		Code:    http.StatusServiceUnavailable,
 	}
 }

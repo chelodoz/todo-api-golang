@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	appError "todo-api-golang/pkg/error"
 
@@ -19,9 +20,13 @@ func WriteError(rw http.ResponseWriter, error *appError.ErrorResponse) error {
 	return json.NewEncoder(rw).Encode(error)
 }
 
-func GetUriParam(r *http.Request, uriParam string) string {
+func GetUriParam(r *http.Request, uriParam string) (string, error) {
 	vars := mux.Vars(r)
-	return vars[uriParam]
+	queryParam, ok := vars[uriParam]
+	if !ok {
+		return "", errors.New("invalid uri param")
+	}
+	return queryParam, nil
 }
 
 func ReadRequestBody[T any](r *http.Request, data *T) error {

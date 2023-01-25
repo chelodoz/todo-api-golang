@@ -31,14 +31,15 @@ func startHTTPServer(config config.Config) {
 		log.Fatalf("Error starting mongo client: %s\n", err)
 	}
 
-	router := todo.NewApi(config, mongoClient)
+	todoApi := todo.NewApi(config, mongoClient)
+	todoRouter := todoApi.SetupRouter()
 
 	if err != nil {
 		log.Fatalf("Error starting server: %s\n", err)
 	}
 
 	// Swagger
-	router.PathPrefix("/swagger/").Handler(http.StripPrefix("/api/v1/swagger/", http.FileServer(http.Dir("./third_party/swagger-ui-4.11.1"))))
+	todoRouter.PathPrefix("/swagger/").Handler(http.StripPrefix("/api/v1/swagger/", http.FileServer(http.Dir("./third_party/swagger-ui-4.11.1"))))
 
 	// CORS
 	cors := handlers.CORS(handlers.AllowedOrigins([]string{"*"}))
@@ -48,7 +49,7 @@ func startHTTPServer(config config.Config) {
 	// create a new server
 	server := http.Server{
 		Addr:         config.HTTPServerAddress, // configure the bind address
-		Handler:      cors(router),             // set the default handler
+		Handler:      cors(todoRouter),         // set the default handler
 		ErrorLog:     log,                      // set the logger for the server
 		ReadTimeout:  5 * time.Second,          // max time to read request from the client
 		WriteTimeout: 10 * time.Second,         // max time to write response to the client
@@ -59,7 +60,7 @@ func startHTTPServer(config config.Config) {
 	go func() {
 		log.Printf("Starting server on port: %v", config.HTTPServerAddress)
 
-		err := http.ListenAndServe(config.HTTPServerAddress, router)
+		err := http.ListenAndServe(config.HTTPServerAddress, todoRouter)
 		if err != nil {
 			log.Fatalf("Error starting server: %s\n", err)
 		}
