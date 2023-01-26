@@ -68,15 +68,19 @@ func startHTTPServer(config *config.Config) {
 
 	// trap sigterm or interrupt and gracefully shutdown the server
 	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, os.Interrupt)
-	signal.Notify(ch, syscall.SIGTERM)
+	signal.Notify(ch, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 
-	// Block until a signal is received.
+	// block until a signal is received.
 	sig := <-ch
-	log.Println("Got signal:", sig)
+	log.Println("Shutdown signal received:", sig)
 
 	// gracefully shutdown the server, waiting max 30 seconds for current operations to complete
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	server.Shutdown(ctx)
+
+	if err = server.Shutdown(ctx); err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("Server shutdown completed")
 }
