@@ -16,15 +16,15 @@
 // swagger:meta
 package note
 
-// swagger:parameters createNoteRequestWrapper
-type createNoteRequestWrapper struct {
+// swagger:parameters CreateNoteRequestWrapper
+type CreateNoteRequestWrapper struct {
 	// in: body
 	// required: true
 	Body CreateNoteRequest
 }
 
-// swagger:parameters updateNoteRequestWrapper
-type updateNoteRequestWrapper struct {
+// swagger:parameters UpdateNoteRequestWrapper
+type UpdateNoteRequestWrapper struct {
 	// The id of the note for which the operation relates
 	// in: path
 	// required: true
@@ -34,8 +34,8 @@ type updateNoteRequestWrapper struct {
 	Body UpdateNoteRequest
 }
 
-// swagger:parameters noteIdQueryParamWrapper
-type noteIdQueryParamWrapper struct {
+// swagger:parameters NoteIdQueryParamWrapper
+type NoteIdQueryParamWrapper struct {
 	// The id of the note for which the operation relates
 	// in: path
 	// required: true
@@ -43,13 +43,31 @@ type noteIdQueryParamWrapper struct {
 }
 
 // No content is returned by this API endpoint
-// swagger:response noContentResponseWrapper
-type noContentResponseWrapper struct {
+// swagger:response NoContentResponseWrapper
+type NoContentResponseWrapper struct {
 }
 
-// swagger:response errorResponseWrapper
-type errorResponseWrapper struct {
-	Type    string `json:"type"`
-	Message string `json:"message"`
-	Code    int    `json:"code"`
+// swagger:response ErrorResponseWrapper
+type ErrorResponseWrapper struct {
+	// in: body
+	Body struct {
+		Type    string `json:"type"`
+		Message string `json:"message"`
+		Code    int    `json:"code"`
+	}
+}
+
+// swagger:response ValidationErrorResponseWrapper
+type ValidationErrorResponseWrapper struct {
+	// in: body
+	Body struct {
+		Type    string            `json:"type"`
+		Message string            `json:"message"`
+		Code    int               `json:"code"`
+		Errors  []ValidationError `json:"errors"`
+	}
+}
+type ValidationError struct {
+	Field string `json:"field"`
+	Error string `json:"error"`
 }

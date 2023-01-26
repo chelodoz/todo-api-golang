@@ -28,7 +28,7 @@
         "operationId": "Health",
         "responses": {
           "200": {
-            "$ref": "#/responses/helthReponseWrapper"
+            "$ref": "#/responses/HealthResponseWrapper"
           }
         }
       }
@@ -43,7 +43,13 @@
         "operationId": "Notes",
         "responses": {
           "200": {
-            "$ref": "#/responses/GetNotesResponse"
+            "description": "GetNotesResponse",
+            "schema": {
+              "$ref": "#/definitions/GetNotesResponse"
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ErrorResponseWrapper"
           }
         }
       },
@@ -53,7 +59,7 @@
           "Notes"
         ],
         "summary": "Creates a new note",
-        "operationId": "createNoteRequestWrapper",
+        "operationId": "CreateNoteRequestWrapper",
         "parameters": [
           {
             "name": "Body",
@@ -66,10 +72,19 @@
         ],
         "responses": {
           "201": {
-            "$ref": "#/responses/CreateNoteResponse"
+            "description": "CreateNoteResponse",
+            "schema": {
+              "$ref": "#/definitions/CreateNoteResponse"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/ValidationErrorResponseWrapper"
           },
           "422": {
-            "$ref": "#/responses/errorResponseWrapper"
+            "$ref": "#/responses/ErrorResponseWrapper"
+          },
+          "500": {
+            "$ref": "#/responses/ErrorResponseWrapper"
           }
         }
       }
@@ -81,7 +96,7 @@
           "Notes"
         ],
         "summary": "Returns a single note",
-        "operationId": "noteIdQueryParamWrapper",
+        "operationId": "NoteIdQueryParamWrapper",
         "parameters": [
           {
             "type": "string",
@@ -94,7 +109,13 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/responses/GetNoteByIdResponse"
+            "description": "GetNoteResponse",
+            "schema": {
+              "$ref": "#/definitions/GetNoteResponse"
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ErrorResponseWrapper"
           }
         }
       },
@@ -104,7 +125,7 @@
           "Notes"
         ],
         "summary": "Update an existing note",
-        "operationId": "updateNoteRequestWrapper",
+        "operationId": "UpdateNoteRequestWrapper",
         "parameters": [
           {
             "type": "string",
@@ -125,10 +146,16 @@
         ],
         "responses": {
           "204": {
-            "$ref": "#/responses/noContentResponseWrapper"
+            "$ref": "#/responses/NoContentResponseWrapper"
+          },
+          "400": {
+            "$ref": "#/responses/ValidationErrorResponseWrapper"
           },
           "422": {
-            "$ref": "#/responses/errorResponseWrapper"
+            "$ref": "#/responses/ErrorResponseWrapper"
+          },
+          "500": {
+            "$ref": "#/responses/ErrorResponseWrapper"
           }
         }
       }
@@ -154,7 +181,8 @@
       },
       "x-go-package": "todo-api-golang/internal/todo/note"
     },
-    "GetNoteResponse": {
+    "CreateNoteResponse": {
+      "description": "Create a note response",
       "type": "object",
       "properties": {
         "description": {
@@ -168,17 +196,60 @@
         "name": {
           "type": "string",
           "x-go-name": "Name"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "To Do",
+            "In Progress",
+            "Done"
+          ],
+          "x-go-enum-desc": "To Do Todo\nIn Progress InProgress\nDone Done",
+          "x-go-name": "Status"
         }
+      },
+      "x-go-package": "todo-api-golang/internal/todo/note"
+    },
+    "GetNoteResponse": {
+      "description": "A single note returns in the response",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "id": {
+          "type": "string",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "To Do",
+            "In Progress",
+            "Done"
+          ],
+          "x-go-enum-desc": "To Do Todo\nIn Progress InProgress\nDone Done",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-package": "todo-api-golang/internal/todo/note"
+    },
+    "GetNotesResponse": {
+      "description": "List notes returns",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GetNoteResponse"
       },
       "x-go-package": "todo-api-golang/internal/todo/note"
     },
     "UpdateNoteRequest": {
       "description": "Update a note request",
       "type": "object",
-      "required": [
-        "name",
-        "description"
-      ],
       "properties": {
         "description": {
           "type": "string",
@@ -187,72 +258,100 @@
         "name": {
           "type": "string",
           "x-go-name": "Name"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "To Do",
+            "In Progress",
+            "Done"
+          ],
+          "x-go-enum-desc": "To Do Todo\nIn Progress InProgress\nDone Done",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-package": "todo-api-golang/internal/todo/note"
+    },
+    "ValidationError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "x-go-name": "Error"
+        },
+        "field": {
+          "type": "string",
+          "x-go-name": "Field"
         }
       },
       "x-go-package": "todo-api-golang/internal/todo/note"
     }
   },
   "responses": {
-    "CreateNoteResponse": {
-      "description": "Create a note response",
-      "headers": {
-        "description": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      }
-    },
-    "GetNoteByIdResponse": {
-      "description": "A single note returns in the response",
-      "headers": {
-        "description": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      }
-    },
-    "GetNotesResponse": {
-      "description": "List notes returns",
-      "schema": {
-        "type": "array",
-        "items": {
-          "$ref": "#/definitions/GetNoteResponse"
-        }
-      }
-    },
-    "errorResponseWrapper": {
+    "ErrorResponseWrapper": {
       "description": "",
-      "headers": {
-        "code": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "message": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
+      "schema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Code"
+          },
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "type": {
+            "type": "string",
+            "x-go-name": "Type"
+          }
         }
       }
     },
-    "helthReponseWrapper": {
+    "HealthResponseWrapper": {
       "description": "Returns Healthy if the api is working",
       "schema": {
-        "type": "string"
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "x-go-name": "Status",
+            "example": "Healthy"
+          }
+        }
       }
     },
-    "noContentResponseWrapper": {
+    "NoContentResponseWrapper": {
       "description": "No content is returned by this API endpoint"
+    },
+    "ValidationErrorResponseWrapper": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Code"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ValidationError"
+            },
+            "x-go-name": "Errors"
+          },
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "type": {
+            "type": "string",
+            "x-go-name": "Type"
+          }
+        }
+      }
     }
   }
 }

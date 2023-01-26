@@ -10,35 +10,29 @@ type CreateNoteRequest struct {
 
 // Update a note request
 type UpdateNoteRequest struct {
-	// required: true
-	Name string `json:"name" validate:"required"`
-	// required: true
-	Description string `json:"description" validate:"required"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Status      Status `json:"status" validate:"enum"`
 }
 
 // Create a note response
-// swagger:response CreateNoteResponse
+// swagger:model CreateNoteResponse
 type CreateNoteResponse struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Status      Status `json:"status"`
 }
 
+// A single note returns in the response
+// swagger:model GetNoteResponse
 type GetNoteResponse struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Status      Status `json:"status"`
 }
 
 // List notes returns
-// swagger:response GetNotesResponse
+// swagger:model GetNotesResponse
 type GetNotesResponse []GetNoteResponse
-
-// A single note returns in the response
-// swagger:response GetNoteByIdResponse
-type GetNoteByIdResponse CreateNoteResponse
-
-type ErrorResponse struct {
-	Status  int    `json:"status"`
-	Message string `json:"message"`
-}

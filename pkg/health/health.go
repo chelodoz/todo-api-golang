@@ -1,7 +1,6 @@
 package health
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -11,14 +10,21 @@ import (
 // Check health of the api
 //
 // responses:
-// 200: helthReponseWrapper
+// 200: HealthResponseWrapper
 
 // HealthCheck return a Healthy message in the response
 func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "Healthy")
+	w.Write([]byte(`{"status":"Healthy"}`))
 }
 
 // Returns Healthy if the api is working
-// swagger:response helthReponseWrapper
-type helthReponseWrapper string
+// swagger:response HealthResponseWrapper
+type HealthResponseWrapper struct {
+	// in: body
+	Body struct {
+		// example: Healthy
+		Status string `json:"status"`
+	}
+}

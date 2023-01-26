@@ -17,20 +17,24 @@ type handler struct {
 }
 
 func NewHandler(service Service) Handler {
+	validator := validator.New()
+	validator.RegisterValidation("enum", ValidateEnum)
 	return &handler{
 		service:  service,
-		validate: validator.New(),
+		validate: validator,
 	}
 }
 
-// swagger:route POST /notes Notes createNoteRequestWrapper
+// swagger:route POST /notes Notes CreateNoteRequestWrapper
 // Creates a new note
 //
 // Create a new note in a database
 //
 // responses:
 // 201: CreateNoteResponse
-// 422: errorResponseWrapper
+// 400: ValidationErrorResponseWrapper
+// 422: ErrorResponseWrapper
+// 500: ErrorResponseWrapper
 
 // Create handles POST requests and create a note into the data store
 func (h *handler) Create(rw http.ResponseWriter, r *http.Request) {
@@ -61,6 +65,7 @@ func (h *handler) Create(rw http.ResponseWriter, r *http.Request) {
 		ID:          note.ID.String(),
 		Name:        note.Name,
 		Description: note.Description,
+		Status:      note.Status,
 	}
 
 	util.WriteResponse(rw, http.StatusCreated, noteResponse)
@@ -72,6 +77,7 @@ func (h *handler) Create(rw http.ResponseWriter, r *http.Request) {
 // Returns a list of notes from the database
 // responses:
 // 200: GetNotesResponse
+// 500: ErrorResponseWrapper
 
 // GetAll handles GET requests and returns all the notes from the data store
 func (h *handler) GetAll(rw http.ResponseWriter, r *http.Request) {
@@ -94,6 +100,7 @@ func (h *handler) GetAll(rw http.ResponseWriter, r *http.Request) {
 			ID:          note.ID.String(),
 			Name:        note.Name,
 			Description: note.Description,
+			Status:      note.Status,
 		}
 		notesResponse = append(notesResponse, noteResponse)
 	}
@@ -101,12 +108,13 @@ func (h *handler) GetAll(rw http.ResponseWriter, r *http.Request) {
 	util.WriteResponse(rw, http.StatusOK, &notesResponse)
 }
 
-// swagger:route GET /notes/{noteId} Notes noteIdQueryParamWrapper
+// swagger:route GET /notes/{noteId} Notes NoteIdQueryParamWrapper
 // Returns a single note
 //
 // Returns a single note from the database
 // responses:
-// 200: GetNoteByIdResponse
+// 200: GetNoteResponse
+// 500: ErrorResponseWrapper
 
 // GetNote handles GET/{noteId} requests and returns a note from the data store
 func (h *handler) GetById(rw http.ResponseWriter, r *http.Request) {
@@ -134,23 +142,26 @@ func (h *handler) GetById(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	noteResponse := &GetNoteByIdResponse{
+	noteResponse := &GetNoteResponse{
 		ID:          note.ID.String(),
 		Name:        note.Name,
 		Description: note.Description,
+		Status:      note.Status,
 	}
 
 	util.WriteResponse(rw, http.StatusOK, noteResponse)
 }
 
-// swagger:route PATCH /notes/{noteId} Notes updateNoteRequestWrapper
+// swagger:route PATCH /notes/{noteId} Notes UpdateNoteRequestWrapper
 // Update an existing note
 //
 // Update a new note in a database
 //
 // responses:
-// 204: noContentResponseWrapper
-// 422: errorResponseWrapper
+// 204: NoContentResponseWrapper
+// 400: ValidationErrorResponseWrapper
+// 422: ErrorResponseWrapper
+// 500: ErrorResponseWrapper
 
 // Update handles PATCH requests and updates a note into the data store
 func (h *handler) Update(rw http.ResponseWriter, r *http.Request) {
@@ -181,6 +192,7 @@ func (h *handler) Update(rw http.ResponseWriter, r *http.Request) {
 		ID:          uid,
 		Name:        updateNoteRequest.Name,
 		Description: updateNoteRequest.Description,
+		Status:      updateNoteRequest.Status,
 	}
 
 	_, err = h.service.Update(updatedNote, r.Context())

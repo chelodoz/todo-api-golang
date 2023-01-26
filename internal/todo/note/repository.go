@@ -39,6 +39,7 @@ func (r *repository) Create(note *Note, ctx context.Context) (*Note, error) {
 	}
 	note.ID = id
 	note.CreatedAt = time.Now().UTC()
+	note.Status = "To Do"
 
 	_, err = collection.InsertOne(ctx, note)
 
