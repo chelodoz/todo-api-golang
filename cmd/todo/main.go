@@ -17,14 +17,14 @@ import (
 )
 
 func main() {
-	config, err := config.LoadConfig("./../../config")
+	config, err := config.LoadConfig("./../..")
 	if err != nil {
 		log.Fatal("cannot load config:", err)
 	}
 	startHTTPServer(config)
 }
 
-func startHTTPServer(config config.Config) {
+func startHTTPServer(config *config.Config) {
 
 	mongoClient, err := mongo.ConnectMongoDb(config)
 	if err != nil {

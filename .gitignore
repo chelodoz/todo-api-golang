@@ -22,4 +22,4 @@ go.work
 .vscode/settings.json
 
 # Environment
-*/*.env
+.env

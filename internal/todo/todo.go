@@ -15,9 +15,9 @@ type APIServer struct {
 }
 
 // NewApi creates the default configuration for the http server and set up routing.
-func NewApi(config config.Config, mongoClient *mongo.Client) *APIServer {
+func NewApi(config *config.Config, mongoClient *mongo.Client) *APIServer {
 
-	noteRepository := note.NewRepository(mongoClient, &config)
+	noteRepository := note.NewRepository(mongoClient, config)
 	noteService := note.NewService(noteRepository)
 	noteHandler := note.NewHandler(noteService)
 

@@ -10,11 +10,11 @@ If you're have not encountered Go before, you should visit this website [here](h
 
 ## Environment
 
-The `app.env.example` file is provided in the config directory to provide development environment variables change it to `app.env` to make it work
+The `.env.example` file is provided in the root directory to provide development environment variables change it to `.env` to make it work
 
 ## Run
 
-To run the code, you will need docker and docker-compose installed on your machine. In the project root, run `docker compose --env-file ./config/app.env up`.
+To run the code, you will need docker and docker-compose installed on your machine. In the project root, run `docker compose up`.
 
 You can run it manually without docker `cd todo-api-golang/cmd/todo` and run `go run main.go`
 Use F5 keyword in vscode to debug it locally as the launch.json has a default configuration
@@ -37,7 +37,7 @@ After that, you have a RESTful API that is running at `http://127.0.0.1:8080`. I
   - ```JSON
       {
           "name": "Go shopping",
-          "description":"buy groceries for the week",
+          "description":"buy groceries for the week"
       }
 
     ```
@@ -53,7 +53,6 @@ The project uses the following project layout:
 .
 ├── cmd                main applications of the project
 │   └── todo             the api server setup
-├── config             configuration files for different environments
 ├── docs               api documentation
 ├── internal           private application and library code
 │   ├── config           configuration library
