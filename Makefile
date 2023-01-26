@@ -1,3 +1,12 @@
+build:
+	@go build -o bin/todo ./cmd/todo
+
+run: build
+	@./bin/todo
+
+test:
+	@go test -v ./... -cover      
+
 check_swagger_install:
 	which swagger || go install github.com/go-swagger/go-swagger/cmd/swagger
 swagger: check_swagger_install
@@ -9,5 +18,5 @@ check_mockery_install:
 mocks: check_mockery_install
 	cd internal && mockery --all --inpackage
 
-build:
-	docker compose --env-file ./config/app.env up --build
+dcbuild:
+	docker compose up --build
