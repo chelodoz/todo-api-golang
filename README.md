@@ -117,11 +117,11 @@ PATCH /api/v1/notes/{noteId}
 ```
 
 ```json
-  {
-      "name": "Go shopping",
-      "description":"Buy groceries for the week",
-      "status" : "In Progress"
-  }
+{
+    "name": "Go shopping",
+    "description":"Buy groceries for the week",
+    "status" : "In Progress"
+}
 ```
 
 #### Update Note Response

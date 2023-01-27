@@ -11,7 +11,9 @@ type service struct {
 }
 
 func NewService(repository Repository) Service {
-	return &service{repository}
+	return &service{
+		repository: repository,
+	}
 }
 
 func (s *service) Create(note *Note, ctx context.Context) (*Note, error) {
@@ -24,13 +26,13 @@ func (s *service) Create(note *Note, ctx context.Context) (*Note, error) {
 	return newNote, nil
 }
 func (s *service) Update(note *Note, ctx context.Context) (*Note, error) {
-	newNote, err := s.repository.Update(note, ctx)
+	updatedNote, err := s.repository.Update(note, ctx)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return newNote, nil
+	return updatedNote, nil
 }
 
 func (s *service) GetById(id uuid.UUID, ctx context.Context) (*Note, error) {

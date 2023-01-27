@@ -2,7 +2,6 @@ package note
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"todo-api-golang/pkg/error"
 	"todo-api-golang/pkg/util"
@@ -17,12 +16,7 @@ type handler struct {
 	validate *validator.Validate
 }
 
-func NewHandler(service Service) Handler {
-	validator := validator.New()
-	if err := validator.RegisterValidation("enum", ValidateEnum); err != nil {
-		log.Printf("Failed registering handler validators: %v", err)
-	}
-
+func NewHandler(service Service, validator *validator.Validate) Handler {
 	return &handler{
 		service:  service,
 		validate: validator,

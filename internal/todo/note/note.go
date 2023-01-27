@@ -42,6 +42,7 @@ type Handler interface {
 	Update(rw http.ResponseWriter, r *http.Request)
 }
 
+//go:generate mockery --name=Repository --output=note --inpackage=true --filename=repository_mock.go
 type Repository interface {
 	Create(note *Note, ctx context.Context) (*Note, error)
 	GetById(id uuid.UUID, ctx context.Context) (*Note, error)
@@ -49,6 +50,7 @@ type Repository interface {
 	Update(note *Note, ctx context.Context) (*Note, error)
 }
 
+//go:generate mockery --name=Service --output=note --inpackage=true --filename=service_mock.go
 type Service interface {
 	Create(note *Note, ctx context.Context) (*Note, error)
 	GetById(id uuid.UUID, ctx context.Context) (*Note, error)
