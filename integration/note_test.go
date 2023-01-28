@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"testing"
 	"todo-api-golang/internal/config"
 	"todo-api-golang/internal/todo/note"
@@ -16,11 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	pool     *dockertest.Pool
-	appPort  string
-	basePath string
-)
+var basePath string
 
 func TestMain(m *testing.M) {
 	config, err := config.LoadConfig("./..")
@@ -37,45 +32,24 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatalf("Could not create Network to docker: %s \n", err)
 	}
-	var mongoCnt, apiCnt *dockertest.Resource
 
-	mongoCnt, err = startMongoDB(pool, "5.0.9", network, config)
+	integrationTest := NewIntegrationTest(pool, network, config)
+	err = integrationTest.StartMongoDB("5.0.9")
 	if err != nil {
-		if mongoCnt != nil {
-			if err := pool.Purge(mongoCnt); err != nil {
-				log.Fatalf("Could not purge resource: %s\n", err)
-			}
-		}
-		if network != nil {
-			if err := pool.RemoveNetwork(network); err != nil {
-				log.Fatalf("Could not remove network: %s\n", err)
-			}
-		}
+		integrationTest.CleanUp(1)
 	}
 
-	apiCnt, err = startAPI(pool, network, config)
+	basePath, err = integrationTest.StartTodoAPI()
 	if err != nil {
-		cleanUp(1, network, mongoCnt, apiCnt)
+		integrationTest.CleanUp(1)
 	}
 
 	println("Starting tests")
 	code := m.Run()
 	println("Stopping tests")
 
-	if err := pool.Purge(mongoCnt); err != nil {
-		log.Fatalf("Could not purge resource: %s\n", err)
-	}
-
-	if err := pool.Purge(apiCnt); err != nil {
-		log.Fatalf("Could not purge resource: %s\n", err)
-	}
-
-	if err := pool.RemoveNetwork(network); err != nil {
-		log.Fatalf("Could not remove network: %s\n", err)
-	}
-	os.Exit(code)
+	integrationTest.CleanUp(code)
 }
-
 func createNote(t *testing.T) note.CreateNoteResponse {
 	createNoteRequest := &note.CreateNoteRequest{
 		Name:        "Go to the bank",

@@ -17,16 +17,33 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func startMongoDB(pool *dockertest.Pool, mongoVersion string, network *dockertest.Network, config *config.Config) (*dockertest.Resource, error) {
-	r, err := pool.RunWithOptions(&dockertest.RunOptions{
-		Name:       config.MongoHost,
+type IntegrationTest struct {
+	pool     *dockertest.Pool
+	network  *dockertest.Network
+	config   *config.Config
+	mongoRes *dockertest.Resource
+	apiRes   *dockertest.Resource
+}
+
+func NewIntegrationTest(pool *dockertest.Pool, network *dockertest.Network, config *config.Config) *IntegrationTest {
+	return &IntegrationTest{
+		pool:    pool,
+		network: network,
+		config:  config,
+	}
+}
+
+// Create a mongo db container to perform integrations tests
+func (i *IntegrationTest) StartMongoDB(mongoVersion string) error {
+	r, err := i.pool.RunWithOptions(&dockertest.RunOptions{
+		Name:       i.config.MongoHost,
 		Repository: "mongo",
 		Tag:        mongoVersion,
-		Mounts:     []string{getProjectRootPath() + "/internal/mongo/initdb.d:/docker-entrypoint-initdb.d:ro"},
-		Networks:   []*dockertest.Network{network},
+		Mounts:     []string{getProjectParentRootPath() + "/internal/mongo/initdb.d:/docker-entrypoint-initdb.d:ro"},
+		Networks:   []*dockertest.Network{i.network},
 		Env: []string{
-			fmt.Sprintf("MONGO_INITDB_ROOT_USERNAME=%s", config.MongoUsername),
-			fmt.Sprintf("MONGO_INITDB_ROOT_PASSWORD=%s", config.MongoPassword),
+			fmt.Sprintf("MONGO_INITDB_ROOT_USERNAME=%s", i.config.MongoUsername),
+			fmt.Sprintf("MONGO_INITDB_ROOT_PASSWORD=%s", i.config.MongoPassword),
 		},
 	}, func(config *docker.HostConfig) {
 		// set AutoRemove to true so that stopped container goes away by itself
@@ -37,7 +54,7 @@ func startMongoDB(pool *dockertest.Pool, mongoVersion string, network *dockertes
 	})
 	if err != nil {
 		fmt.Printf("Could not start Mongodb: %v \n", err)
-		return r, err
+		return err
 	}
 
 	err = r.Expire(60)
@@ -48,10 +65,10 @@ func startMongoDB(pool *dockertest.Pool, mongoVersion string, network *dockertes
 	mongoPort := r.GetPort("27017/tcp")
 
 	fmt.Printf("mongo-%s - connecting to : %s \n", mongoVersion, fmt.Sprintf("mongodb://localhost:%s", mongoPort))
-	if err := pool.Retry(func() error {
+	if err := i.pool.Retry(func() error {
 		var err error
 
-		url := fmt.Sprintf("mongodb://%s:%s@localhost:%s", config.MongoUsername, config.MongoPassword, mongoPort)
+		url := fmt.Sprintf("mongodb://%s:%s@localhost:%s", i.config.MongoUsername, i.config.MongoPassword, mongoPort)
 		clientOptions := options.Client().ApplyURI(url)
 		client, err := mongo.Connect(context.TODO(), clientOptions)
 		if err != nil {
@@ -66,15 +83,17 @@ func startMongoDB(pool *dockertest.Pool, mongoVersion string, network *dockertes
 
 	}); err != nil {
 		fmt.Printf("Could not connect to mongodb container: %v \n", err)
-		return r, err
+		return err
 	}
 
-	return r, nil
+	return nil
 }
-func startAPI(pool *dockertest.Pool, network *dockertest.Network, config *config.Config) (*dockertest.Resource, error) {
+
+// Create a mongo db container to perform integrations tests
+func (i *IntegrationTest) StartTodoAPI() (string, error) {
 	apiContainerName := "todo-integration-test"
 
-	r, err := pool.BuildAndRunWithBuildOptions(
+	r, err := i.pool.BuildAndRunWithBuildOptions(
 		&dockertest.BuildOptions{
 			ContextDir: "../",
 			Dockerfile: "Dockerfile",
@@ -83,7 +102,7 @@ func startAPI(pool *dockertest.Pool, network *dockertest.Network, config *config
 		&dockertest.RunOptions{
 			Name:       apiContainerName,
 			Repository: apiContainerName,
-			Networks:   []*dockertest.Network{network},
+			Networks:   []*dockertest.Network{i.network},
 		}, func(config *docker.HostConfig) {
 			// set AutoRemove to true so that stopped container goes away by itself
 			config.AutoRemove = true
@@ -93,7 +112,7 @@ func startAPI(pool *dockertest.Pool, network *dockertest.Network, config *config
 		})
 	if err != nil {
 		fmt.Printf("Could not start %s: %v \n", apiContainerName, err)
-		return r, err
+		return "", err
 	}
 
 	err = r.Expire(60)
@@ -101,7 +120,7 @@ func startAPI(pool *dockertest.Pool, network *dockertest.Network, config *config
 		fmt.Printf("Could set expiration time: %v \n", err)
 	}
 
-	waiter, err := pool.Client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
+	waiter, err := i.pool.Client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
 		Container:    apiContainerName,
 		OutputStream: log.Writer(),
 		ErrorStream:  log.Writer(),
@@ -116,9 +135,9 @@ func startAPI(pool *dockertest.Pool, network *dockertest.Network, config *config
 	}
 	defer waiter.Close()
 
-	appPort = r.GetPort("8080/tcp")
-	basePath = fmt.Sprintf("http://localhost:%s/api/v1", appPort)
-	if err := pool.Retry(func() error {
+	appPort := r.GetPort("8080/tcp")
+	basePath := fmt.Sprintf("http://localhost:%s/api/v1", appPort)
+	if err := i.pool.Retry(func() error {
 
 		resp, err := http.Get(fmt.Sprintf("%s/health", basePath))
 		if err != nil {
@@ -138,13 +157,13 @@ func startAPI(pool *dockertest.Pool, network *dockertest.Network, config *config
 		return nil
 	}); err != nil {
 		fmt.Printf("Could not connect to %s container: %v \n", apiContainerName, err)
-		return r, err
+		return "", err
 	}
-
-	return r, nil
+	return basePath, nil
 }
 
-func getProjectRootPath() string {
+// Get parent root patch directory
+func getProjectParentRootPath() string {
 	p, err := os.Getwd()
 
 	if err != nil {
@@ -154,22 +173,23 @@ func getProjectRootPath() string {
 	return strings.ReplaceAll(parent, "\\", "/")
 }
 
-func cleanUp(code int, network *dockertest.Network, mongoRes *dockertest.Resource, apiRes *dockertest.Resource) {
+// Remove integration tests containers
+func (i *IntegrationTest) CleanUp(code int) {
 	fmt.Println("removing resources.")
-	if mongoRes != nil {
-		if err := pool.Purge(mongoRes); err != nil {
+	if i.mongoRes != nil {
+		if err := i.pool.Purge(i.mongoRes); err != nil {
 			log.Fatalf("Could not purge resource: %s\n", err)
 		}
 	}
 
-	if apiRes != nil {
-		if err := pool.Purge(apiRes); err != nil {
+	if i.apiRes != nil {
+		if err := i.pool.Purge(i.apiRes); err != nil {
 			log.Fatalf("Could not purge resource: %s\n", err)
 		}
 	}
 
-	if network != nil {
-		if err := pool.RemoveNetwork(network); err != nil {
+	if i.network != nil {
+		if err := i.pool.RemoveNetwork(i.network); err != nil {
 			log.Fatalf("Could not remove network: %s\n", err)
 		}
 	}
