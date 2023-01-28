@@ -1,8 +1,10 @@
 package util
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
 	"net/http"
 	appError "todo-api-golang/pkg/error"
@@ -40,7 +42,22 @@ func GetUriParam(r *http.Request, uriParam string) (string, error) {
 	return queryParam, nil
 }
 
-// ReadRequestBody decodes the json body of an http request using http request
+// ReadRequestBody decodes the json body of an http request
 func ReadRequestBody(r *http.Request, data any) error {
 	return json.NewDecoder(r.Body).Decode(data)
+}
+
+// ReadResponseBody decodes the json body of an http response
+func ReadResponseBody(r *http.Response, data any) error {
+	return json.NewDecoder(r.Body).Decode(data)
+}
+
+// CreateRequest encodes a struct to a io reader interface
+func CreateRequest(data any) (io.Reader, error) {
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(data)
+	if err != nil {
+		return nil, err
+	}
+	return &buf, nil
 }

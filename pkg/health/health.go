@@ -5,6 +5,11 @@ import (
 	"net/http"
 )
 
+type HealthResponse struct {
+	// example: Healthy
+	Status string `json:"status"`
+}
+
 // swagger:route GET /health Health Health
 // Check health of the api
 //
@@ -27,8 +32,5 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 // swagger:response HealthResponseWrapper
 type HealthResponseWrapper struct {
 	// in: body
-	Body struct {
-		// example: Healthy
-		Status string `json:"status"`
-	}
+	Body HealthResponse
 }

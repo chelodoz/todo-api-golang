@@ -53,6 +53,7 @@ The project uses the following project layout:
 ├── cmd                main applications of the project
 │   └── todo             the api server setup
 ├── docs               api documentation
+├── integration        integration tests
 ├── internal           private application and library code
 │   ├── config           configuration library
 │   ├── platform         mongo db client

@@ -6,3 +6,5 @@ db.createUser({
         db: "admin",
     }, ],
 });
+
+db.createCollection("notes");
