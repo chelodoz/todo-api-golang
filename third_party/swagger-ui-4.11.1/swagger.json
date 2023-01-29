@@ -247,6 +247,17 @@
       },
       "x-go-package": "todo-api-golang/internal/todo/note"
     },
+    "HealthResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "x-go-name": "Status",
+          "example": "Healthy"
+        }
+      },
+      "x-go-package": "todo-api-golang/pkg/health"
+    },
     "UpdateNoteRequest": {
       "description": "Update a note request",
       "type": "object",
@@ -312,14 +323,7 @@
     "HealthResponseWrapper": {
       "description": "Returns Healthy if the api is working",
       "schema": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "x-go-name": "Status",
-            "example": "Healthy"
-          }
-        }
+        "$ref": "#/definitions/HealthResponse"
       }
     },
     "NoContentResponseWrapper": {
@@ -334,6 +338,10 @@
             "type": "integer",
             "format": "int64",
             "x-go-name": "Code"
+          },
+          "detail": {
+            "type": "string",
+            "x-go-name": "Detail"
           },
           "errors": {
             "type": "array",

@@ -3,16 +3,16 @@ package mongo
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 	"todo-api-golang/internal/config"
+	"todo-api-golang/pkg/logs"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// ConnectMongoDb take mongodb url and related to connections
-func ConnectMongoDb(config *config.Config) (*mongo.Client, error) {
+// NewDbClient takes mongodb configuration and returns a mongo client
+func NewDbClient(config *config.Config, logs *logs.Logs) (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -22,6 +22,7 @@ func ConnectMongoDb(config *config.Config) (*mongo.Client, error) {
 	// Connect to MongoDB
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
+		logs.Logger.Error("Failed to connect to MongoDB")
 		return nil, err
 	}
 
@@ -30,9 +31,10 @@ func ConnectMongoDb(config *config.Config) (*mongo.Client, error) {
 
 	// Check the connection
 	if err = client.Ping(ctx, nil); err != nil {
+		logs.Logger.Error("Ping command to MongoDB client failed")
 		return nil, err
 	}
-	log.Printf("MongoClient connected")
+	logs.Logger.Info("MongoDB client connected")
 
 	return client, nil
 }

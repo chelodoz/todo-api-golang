@@ -16,6 +16,14 @@
   - [Update Note](#update-note)
     - [Update Note Request](#update-note-request)
     - [Update Note Response](#update-note-response)
+- [Logging](#logging)
+  - [Log levels](#log-levels)
+  - [Log body](#log-body)
+  - [Example of Create Note Request](#example-of-create-note-request )
+  - [Example of Create Note Request Logging](#example-of-create-note-request-logging)
+  - [Example of Create Note Response Logging](#example-of-create-note-response-logging)
+  - [Example of Fatal level error when .env file is missing](#example-of-fatal-level-error-when-env-file-is-missing)
+  - [Example of Error level error when 500 error occurs](#example-of-error-level-error-when-500-error-occurs)
 - [Make File](#make-file)
   - [Generate mocks](#generate-mocks)
   - [Local run](#local-run)
@@ -207,6 +215,108 @@ GET /api/v1/health
 ```js
 GET /api/v1/swagger/
 ```
+
+## Logging
+
+Logging plays a vital role in identifying issues, evaluating performances, and knowing the process status within the application. For this reason it was decided to select structured logging, using Uber's library [Zap](https://github.com/uber-go/zap).
+
+### Log levels
+
+For simplicity it was decided to use three types of log levels
+
+- `Info`  Generally useful information to log.
+- `Error` Anything that can potentially cause application oddities including 50x server errors.
+- `Fatal` Any error that is forcing a shutdown of the service or application to prevent data loss.
+
+### Log body
+
+The log itself is a json structure with the following keys
+
+- `level`       define log level
+- `ts`          define log timestamp
+- `caller`      define the file where the log was called
+- `msg`         define the main info of the log
+- `method`      define the request method
+- `url`         define the resource called in the api
+- `statusCode`  define the response status code
+- `duration`    define the duration of the request in nanoseconds
+- `details`     define extra error information
+- `stacktrace`  define extra trace information
+
+Logging was included at the beginning and end of the requests in order to maintain traceability.
+
+### Example of Create Note Request
+
+```js
+POST api/v1/notes
+```
+
+```json
+{
+    "name": "Go to the bank",
+    "description":"Schedule an appointment to the bank",
+}
+ ```
+
+### Example of Create Note Request Logging
+
+```json
+{
+    "level": "info",
+    "ts": 1674960805.3700233,
+    "caller": "todo/middleware.go:64",
+    "msg": "Start http request",
+    "method": "POST",
+    "url": "/api/v1/notes"
+}
+ ```
+
+### Example of Create Note Response Logging
+
+```json
+{
+    "level": "info",
+    "ts": 1674960805.3718014,
+    "caller": "todo/middleware.go:87",
+    "msg": "Finish http request",
+    "method": "POST",
+    "url": "/api/v1/notes",
+    "statusCode": 201,
+    "duration": 0.0017783
+}
+ ```
+
+### Example of Fatal level error when .env file is missing
+
+```json
+{
+    "level": "fatal",
+    "ts": 1674963617.935728,
+    "caller": "todo/main.go:29",
+    "msg": "Cannot load config",
+    "details": "Config File \".env\" Not Found in \"[C:\\\\Users\\\\User\\\\Documents\\\\todo-api-golang C:\\\\Users\\\\User\\\\Documents\\\\todo-api-golang\\\\cmd\\\\todo]\"",
+    "stacktrace": "main.main\n\tC:/Users/User/Documents/todo-api-golang/cmd/todo/main.go:29\nruntime.main\n\tC:/Program Files/Go/src/runtime/proc.go:250"
+}
+ ```
+
+### Example of Error level error when 500 error occurs
+
+In this case a body of the response is included to provide additional information in order to identify the issue.
+
+```json
+{
+    "level": "error",
+    "ts": 1674965353.375559,
+    "caller": "todo/middleware.go:84",
+    "msg": "Finish http request",
+    "method": "POST",
+    "url": "/api/v1/notes",
+    "statusCode": 500,
+    "duration": 0.0005219,
+    "body": "{\"type\":\"INTERNAL\",\"message\":\"Internal server error.\",\"code\":500,\"detail\":\"error creating note id\"}\n",
+    "stacktrace": "todo-api-golang/internal/todo.LogMiddleware.func1.1\n\tC:/Users/Chelo/Documents/todo-api-golang/internal/todo/middleware.go:84\nnet/http.HandlerFunc.ServeHTTP\n\tC:/Program Files/Go/src/net/http/server.go:2109\ngithub.com/gorilla/mux.(*Router).ServeHTTP\n\tC:/Users/Chelo/go/pkg/mod/github.com/gorilla/mux@v1.8.0/mux.go:210\nnet/http.serverHandler.ServeHTTP\n\tC:/Program Files/Go/src/net/http/server.go:2947\nnet/http.(*conn).serve\n\tC:/Program Files/Go/src/net/http/server.go:1991"
+}
+ ```
 
 ## Make File
 

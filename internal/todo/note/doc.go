@@ -63,6 +63,7 @@ type ValidationErrorResponseWrapper struct {
 	Body struct {
 		Type    string            `json:"type"`
 		Message string            `json:"message"`
+		Detail  string            `json:"detail"`
 		Code    int               `json:"code"`
 		Errors  []ValidationError `json:"errors"`
 	}

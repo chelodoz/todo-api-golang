@@ -52,10 +52,11 @@ func (h *handler) Create(rw http.ResponseWriter, r *http.Request) {
 		Name:        createNoteRequest.Name,
 		Description: createNoteRequest.Description,
 	}
+
 	note, err := h.service.Create(newNote, r.Context())
 
 	if err != nil {
-		util.WriteError(rw, error.NewInternal())
+		util.WriteError(rw, error.NewInternal(err.Error()))
 		return
 	}
 
@@ -86,7 +87,7 @@ func (h *handler) GetAll(rw http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, ErrFoundingNote):
 			util.WriteResponse(rw, http.StatusOK, &GetNotesResponse{})
 		default:
-			util.WriteError(rw, error.NewInternal())
+			util.WriteError(rw, error.NewInternal(err.Error()))
 		}
 		return
 	}
@@ -135,7 +136,7 @@ func (h *handler) GetById(rw http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, ErrFoundingNote):
 			util.WriteError(rw, error.NewNotFound())
 		default:
-			util.WriteError(rw, error.NewInternal())
+			util.WriteError(rw, error.NewInternal(err.Error()))
 		}
 		return
 	}
@@ -200,7 +201,7 @@ func (h *handler) Update(rw http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, ErrFoundingNote):
 			util.WriteError(rw, error.NewNotFound())
 		default:
-			util.WriteError(rw, error.NewInternal())
+			util.WriteError(rw, error.NewInternal(err.Error()))
 		}
 		return
 	}

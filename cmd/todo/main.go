@@ -9,32 +9,39 @@ import (
 	"todo-api-golang/internal/config"
 	"todo-api-golang/internal/platform/mongo"
 	"todo-api-golang/internal/todo"
+	"todo-api-golang/pkg/logs"
 
 	"syscall"
 	"time"
 
 	"github.com/gorilla/handlers"
+	"go.uber.org/zap"
 )
 
 func main() {
+	logs, err := logs.New()
+	if err != nil {
+		log.Fatalf("Error initializing zap: %s\n", err)
+	}
+
 	config, err := config.LoadConfig("./../..")
 	if err != nil {
-		log.Fatal("cannot load config:", err)
+		logs.Logger.Fatal("Cannot load config", zap.String("details", err.Error()))
 	}
-	startHTTPServer(config)
+
+	startHTTPServer(config, logs)
 }
 
-func startHTTPServer(config *config.Config) {
+func startHTTPServer(config *config.Config, logs *logs.Logs) {
 
-	mongoClient, err := mongo.ConnectMongoDb(config)
+	mongoClient, err := mongo.NewDbClient(config, logs)
 	if err != nil {
-		log.Fatalf("Error starting mongo client: %s\n", err)
+		logs.Logger.Fatal("Error starting mongo client", zap.String("details", err.Error()))
 	}
 
-	todoApi := todo.NewApi(config, mongoClient)
-
+	todoApi, err := todo.NewApi(config, mongoClient, logs)
 	if err != nil {
-		log.Fatalf("Error starting server: %s\n", err)
+		logs.Logger.Fatal("Error starting ToDo API", zap.String("details", err.Error()))
 	}
 
 	// Swagger
@@ -43,13 +50,10 @@ func startHTTPServer(config *config.Config) {
 	// CORS
 	cors := handlers.CORS(handlers.AllowedOrigins([]string{"*"}))
 
-	log := log.New(os.Stdout, "todo-api-golang ", log.LstdFlags)
-
 	// create a new server
 	server := http.Server{
 		Addr:         config.HTTPServerAddress, // configure the bind address
 		Handler:      cors(todoApi.Router),     // set the default handler
-		ErrorLog:     log,                      // set the logger for the server
 		ReadTimeout:  5 * time.Second,          // max time to read request from the client
 		WriteTimeout: 10 * time.Second,         // max time to write response to the client
 		IdleTimeout:  120 * time.Second,        // max time for connections using TCP Keep-Alive
@@ -57,11 +61,11 @@ func startHTTPServer(config *config.Config) {
 
 	// start the server
 	go func() {
-		log.Printf("Starting server on port: %v", config.HTTPServerAddress)
+		logs.Logger.Info("Starting ToDo API server", zap.String("address", config.HTTPServerAddress))
 
 		err := http.ListenAndServe(config.HTTPServerAddress, todoApi.Router)
 		if err != nil {
-			log.Fatalf("Error starting server: %s\n", err)
+			logs.Logger.Fatal("Error starting ToDo API server", zap.String("details", err.Error()))
 		}
 	}()
 
@@ -71,15 +75,15 @@ func startHTTPServer(config *config.Config) {
 
 	// block until a signal is received.
 	sig := <-ch
-	log.Println("Shutdown signal received:", sig)
+	logs.Logger.Info("Shutdown signal received", zap.String("details", sig.String()))
 
 	// gracefully shutdown the server, waiting max 30 seconds for current operations to complete
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	if err = server.Shutdown(ctx); err != nil {
-		log.Fatal(err)
+		logs.Logger.Fatal("Error doing the shutdown", zap.String("details", err.Error()))
 	}
 
-	log.Println("Server shutdown completed")
+	logs.Logger.Info("Server shutdown completed")
 }

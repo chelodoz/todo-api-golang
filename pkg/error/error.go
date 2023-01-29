@@ -27,6 +27,7 @@ type ErrorResponse struct {
 	Type    Type              `json:"type"`
 	Message string            `json:"message"`
 	Code    int               `json:"code"`
+	Detail  string            `json:"detail,omitempty"`
 	Errors  []validationError `json:"errors,omitempty"`
 }
 
@@ -99,10 +100,11 @@ func NewUnprocessableEntity() *ErrorResponse {
 }
 
 // NewInternal for 500 errors and unknown errors
-func NewInternal() *ErrorResponse {
+func NewInternal(detail string) *ErrorResponse {
 	return &ErrorResponse{
 		Type:    Internal,
 		Message: "Internal server error.",
+		Detail:  detail,
 		Code:    http.StatusInternalServerError,
 	}
 }

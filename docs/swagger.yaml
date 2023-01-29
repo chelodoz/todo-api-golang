@@ -72,6 +72,14 @@ definitions:
             $ref: '#/definitions/GetNoteResponse'
         type: array
         x-go-package: todo-api-golang/internal/todo/note
+    HealthResponse:
+        properties:
+            status:
+                example: Healthy
+                type: string
+                x-go-name: Status
+        type: object
+        x-go-package: todo-api-golang/pkg/health
     UpdateNoteRequest:
         description: Update a note request
         properties:
@@ -226,12 +234,7 @@ responses:
     HealthResponseWrapper:
         description: Returns Healthy if the api is working
         schema:
-            properties:
-                status:
-                    example: Healthy
-                    type: string
-                    x-go-name: Status
-            type: object
+            $ref: '#/definitions/HealthResponse'
     NoContentResponseWrapper:
         description: No content is returned by this API endpoint
     ValidationErrorResponseWrapper:
@@ -242,6 +245,9 @@ responses:
                     format: int64
                     type: integer
                     x-go-name: Code
+                detail:
+                    type: string
+                    x-go-name: Detail
                 errors:
                     items:
                         $ref: '#/definitions/ValidationError'
