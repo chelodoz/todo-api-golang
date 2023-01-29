@@ -18,6 +18,4 @@ COPY --from=builder /build/todo .
 COPY --from=builder /build/.env .
 COPY --from=builder /build/third_party/swagger-ui-4.11.1 /build/third_party/swagger-ui-4.11.1
 
-EXPOSE 8080
-
 CMD ["/build/todo"]

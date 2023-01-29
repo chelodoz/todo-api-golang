@@ -40,11 +40,12 @@ func NewApi(config *config.Config, mongoClient *mongo.Client, logs *logs.Logs) (
 }
 
 // SetupRoutes create the routes for the todo api
-func setupRouter(noteHandler note.Handler, logger *logs.Logs) *mux.Router {
+func setupRouter(noteHandler note.Handler, log *logs.Logs) *mux.Router {
 	router := mux.NewRouter()
 	base := router.PathPrefix("/api/v1").Subrouter()
-	base.Use(trace.ContextIDMiddleware(logger))
-	base.Use(LogMiddleware(logger))
+
+	base.Use(trace.ContextIDMiddleware(log))
+	base.Use(LogMiddleware(log))
 
 	base.HandleFunc("/health", health.HealthCheck).Methods(http.MethodGet)
 	base.HandleFunc("/notes", noteHandler.GetAll).Methods(http.MethodGet)

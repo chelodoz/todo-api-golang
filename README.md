@@ -326,7 +326,11 @@ Use the command `make run` to run the project, to make it work, the environment 
 
 ### Test coverage
 
-Use the command `make test` to run all the tests including coverage
+Use the command `make unittest` to run all the unit tests including coverage
+
+### Integration test
+
+Use the command `make integrationtest` to run all the integration tests
 
 ### Create and start containers
 

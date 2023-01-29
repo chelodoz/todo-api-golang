@@ -8,6 +8,7 @@ unittest:
 	@go test -v ./... -cover
 
 integrationtest:
+	@go clean -testcache
 	@go test -v ./integration --tags=integration
 
 check_swagger_install:

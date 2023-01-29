@@ -22,12 +22,12 @@ import (
 type IntegrationTest struct {
 	pool     *dockertest.Pool
 	network  *dockertest.Network
-	config   *config.Config
+	config   *config.IntegrationConfig
 	mongoRes *dockertest.Resource
 	apiRes   *dockertest.Resource
 }
 
-func NewIntegrationTest(pool *dockertest.Pool, network *dockertest.Network, config *config.Config) *IntegrationTest {
+func NewIntegrationTest(pool *dockertest.Pool, network *dockertest.Network, config *config.IntegrationConfig) *IntegrationTest {
 	return &IntegrationTest{
 		pool:    pool,
 		network: network,
@@ -38,11 +38,17 @@ func NewIntegrationTest(pool *dockertest.Pool, network *dockertest.Network, conf
 // Create a mongo db container to perform integrations tests
 func (i *IntegrationTest) StartMongoDB(mongoVersion string) error {
 	r, err := i.pool.RunWithOptions(&dockertest.RunOptions{
-		Name:       i.config.MongoHost,
-		Repository: "mongo",
-		Tag:        mongoVersion,
-		Mounts:     []string{getProjectParentRootPath() + "/internal/mongo/initdb.d:/docker-entrypoint-initdb.d:ro"},
-		Networks:   []*dockertest.Network{i.network},
+		Name:         i.config.MongoHost,
+		Repository:   "mongo",
+		Tag:          mongoVersion,
+		Mounts:       []string{getProjectParentRootPath() + "/internal/mongo/initdb.d:/docker-entrypoint-initdb.d:ro"},
+		Networks:     []*dockertest.Network{i.network},
+		ExposedPorts: []string{"27017"},
+		PortBindings: map[docker.Port][]docker.PortBinding{
+			docker.Port("27017"): {
+				{HostIP: "localhost", HostPort: i.config.MongoPort},
+			},
+		},
 		Env: []string{
 			fmt.Sprintf("MONGO_INITDB_ROOT_USERNAME=%s", i.config.MongoUsername),
 			fmt.Sprintf("MONGO_INITDB_ROOT_PASSWORD=%s", i.config.MongoPassword),
@@ -55,18 +61,18 @@ func (i *IntegrationTest) StartMongoDB(mongoVersion string) error {
 		}
 	})
 	if err != nil {
-		fmt.Printf("Could not start Mongodb: %v \n", err)
+		log.Printf("Could not start Mongodb: %v \n", err)
 		return err
 	}
 
 	err = r.Expire(60)
 	if err != nil {
-		fmt.Printf("Could set expiration time: %v \n", err)
+		log.Printf("Could set expiration time: %v \n", err)
 	}
 
 	mongoPort := r.GetPort("27017/tcp")
 
-	fmt.Printf("mongo-%s - connecting to : %s \n", mongoVersion, fmt.Sprintf("mongodb://localhost:%s", mongoPort))
+	log.Printf("mongo-%s - connecting to : %s \n", mongoVersion, fmt.Sprintf("mongodb://localhost:%s", mongoPort))
 	if err := i.pool.Retry(func() error {
 		var err error
 
@@ -79,12 +85,15 @@ func (i *IntegrationTest) StartMongoDB(mongoVersion string) error {
 
 		err = client.Ping(context.TODO(), nil)
 		if err == nil {
-			fmt.Println("successfully connected to Mongodb.")
+			log.Println("successfully connected to Mongodb.")
+			return nil
 		}
+
+		log.Printf("Retry connection to mongodb")
 		return err
 
 	}); err != nil {
-		fmt.Printf("Could not connect to mongodb container: %v \n", err)
+		log.Printf("Could not connect to mongodb container: %v \n", err)
 		return err
 	}
 
@@ -93,18 +102,33 @@ func (i *IntegrationTest) StartMongoDB(mongoVersion string) error {
 
 // Create a mongo db container to perform integrations tests
 func (i *IntegrationTest) StartTodoAPI() (string, error) {
-	apiContainerName := "todo-integration-test"
+	apiContainerName := "todointegrationtest"
 
 	r, err := i.pool.BuildAndRunWithBuildOptions(
 		&dockertest.BuildOptions{
 			ContextDir: "../",
 			Dockerfile: "Dockerfile",
-			BuildArgs:  []docker.BuildArg{{Name: "test", Value: "-t mysuperimage -f MyDockerfile ."}},
 		},
 		&dockertest.RunOptions{
-			Name:       apiContainerName,
-			Repository: apiContainerName,
-			Networks:   []*dockertest.Network{i.network},
+			Name:         apiContainerName,
+			Repository:   apiContainerName,
+			Networks:     []*dockertest.Network{i.network},
+			ExposedPorts: []string{i.config.HTTPServerPort},
+			PortBindings: map[docker.Port][]docker.PortBinding{
+				docker.Port(i.config.HTTPServerPort): {
+					{HostIP: "localhost", HostPort: i.config.HTTPServerPort},
+				},
+			},
+			Env: []string{
+				fmt.Sprintf("HTTP_SERVER_HOST=%s", i.config.HTTPServerHost),
+				fmt.Sprintf("HTTP_SERVER_PORT=%s", i.config.HTTPServerPort),
+				fmt.Sprintf("MONGO_USERNAME=%s", i.config.MongoUsername),
+				fmt.Sprintf("MONGO_PASSWORD=%s", i.config.MongoPassword),
+				fmt.Sprintf("MONGO_HOST=%s", i.config.MongoHost),
+				fmt.Sprintf("MONGO_PORT=%s", "27017"),
+				fmt.Sprintf("MONGO_DATABASE=%s", i.config.MongoDatabase),
+				fmt.Sprintf("MONGO_COLLECTION=%s", i.config.MongoCollection),
+			},
 		}, func(config *docker.HostConfig) {
 			// set AutoRemove to true so that stopped container goes away by itself
 			config.AutoRemove = true
@@ -113,13 +137,13 @@ func (i *IntegrationTest) StartTodoAPI() (string, error) {
 			}
 		})
 	if err != nil {
-		fmt.Printf("Could not start %s: %v \n", apiContainerName, err)
+		log.Printf("Could not start %s: %v \n", apiContainerName, err)
 		return "", err
 	}
 
 	err = r.Expire(60)
 	if err != nil {
-		fmt.Printf("Could set expiration time: %v \n", err)
+		log.Printf("Could set expiration time: %v \n", err)
 	}
 
 	waiter, err := i.pool.Client.AttachToContainerNonBlocking(docker.AttachToContainerOptions{
@@ -133,32 +157,34 @@ func (i *IntegrationTest) StartTodoAPI() (string, error) {
 		Stderr:       true,
 	})
 	if err != nil {
-		fmt.Println("unable to get LOGS: ", err)
+		log.Println("Unable to attach logs to todo api container ", err)
 	}
 	defer waiter.Close()
 
-	appPort := r.GetPort("8080/tcp")
+	// appPort := r.GetPort("8082/tcp")
+	appPort := r.GetPort(fmt.Sprintf("%s/tcp", i.config.HTTPServerPort))
 	basePath := fmt.Sprintf("http://localhost:%s/api/v1", appPort)
+	log.Printf("%s", basePath)
 	if err := i.pool.Retry(func() error {
 
 		resp, err := http.Get(fmt.Sprintf("%s/health", basePath))
 		if err != nil {
-			fmt.Printf("trying to connect to %s on localhost:%s, got : %v \n", apiContainerName, appPort, err)
+			log.Printf("Trying to connect to %s on localhost:%s, got : %v \n", apiContainerName, appPort, err)
 			return err
 		}
 
 		if resp.StatusCode != http.StatusOK {
-			fmt.Printf("trying to connect to %s on localhost:%s, got : %v , status: %v \n", apiContainerName, appPort, err, resp.StatusCode)
+			log.Printf("Trying to connect to %s on localhost:%s, got : %v , status: %v \n", apiContainerName, appPort, err, resp.StatusCode)
 			return err
 		}
 
-		fmt.Println("status: ", resp.StatusCode)
+		log.Println("Status: ", resp.StatusCode)
 		rs, _ := io.ReadAll(resp.Body)
-		fmt.Printf("RESPONSE: %s \n", rs)
+		log.Printf("Response: %s \n", rs)
 
 		return nil
 	}); err != nil {
-		fmt.Printf("Could not connect to %s container: %v \n", apiContainerName, err)
+		log.Printf("Could not connect to %s container: %v \n", apiContainerName, err)
 		return "", err
 	}
 	return basePath, nil
@@ -177,7 +203,7 @@ func getProjectParentRootPath() string {
 
 // Remove integration tests containers
 func (i *IntegrationTest) CleanUp(code int) {
-	fmt.Println("removing resources.")
+	fmt.Println("Removing resources.")
 	if i.mongoRes != nil {
 		if err := i.pool.Purge(i.mongoRes); err != nil {
 			log.Fatalf("Could not purge resource: %s\n", err)

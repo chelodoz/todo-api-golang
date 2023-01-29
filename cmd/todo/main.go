@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -14,6 +15,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/didip/tollbooth/v7"
+	"github.com/didip/tollbooth/v7/limiter"
 	"github.com/gorilla/handlers"
 	"go.uber.org/zap"
 )
@@ -44,27 +47,34 @@ func startHTTPServer(config *config.Config, logs *logs.Logs) {
 		logs.Logger.Fatal("Error starting ToDo API", zap.String("details", err.Error()))
 	}
 
-	// Swagger
+	// swagger
 	todoApi.Router.PathPrefix("/swagger/").Handler(http.StripPrefix("/api/v1/swagger/", http.FileServer(http.Dir("./third_party/swagger-ui-4.11.1"))))
 
 	// CORS
 	cors := handlers.CORS(handlers.AllowedOrigins([]string{"*"}))
 
+	// rate limiting
+	lmt := tollbooth.NewLimiter(1, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Second})
+	lmt.SetIPLookups([]string{"RemoteAddr", "X-Forwarded-For", "X-Real-IP"}).
+		SetMethods([]string{http.MethodPost, http.MethodPatch, http.MethodGet})
+
+	lmth := tollbooth.LimitHandler(lmt, todoApi.Router)
+
 	// create a new server
+	serverAddress := fmt.Sprintf("%s:%s", config.HTTPServerHost, config.HTTPServerPort)
 	server := http.Server{
-		Addr:         config.HTTPServerAddress, // configure the bind address
-		Handler:      cors(todoApi.Router),     // set the default handler
-		ReadTimeout:  5 * time.Second,          // max time to read request from the client
-		WriteTimeout: 10 * time.Second,         // max time to write response to the client
-		IdleTimeout:  120 * time.Second,        // max time for connections using TCP Keep-Alive
+		Addr:         serverAddress,     // configure the bind address
+		Handler:      cors(lmth),        // set the default handler
+		ReadTimeout:  5 * time.Second,   // max time to read request from the client
+		WriteTimeout: 10 * time.Second,  // max time to write response to the client
+		IdleTimeout:  120 * time.Second, // max time for connections using TCP Keep-Alive
 	}
 
 	// start the server
 	go func() {
-		logs.Logger.Info("Starting ToDo API server", zap.String("address", config.HTTPServerAddress))
+		logs.Logger.Info("Starting ToDo API server", zap.String("address", serverAddress))
 
-		err := http.ListenAndServe(config.HTTPServerAddress, todoApi.Router)
-		if err != nil {
+		if err := server.ListenAndServe(); err != nil {
 			logs.Logger.Fatal("Error starting ToDo API server", zap.String("details", err.Error()))
 		}
 	}()
