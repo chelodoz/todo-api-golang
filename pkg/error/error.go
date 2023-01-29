@@ -17,6 +17,7 @@ const (
 	Conflict             Type = "CONFLICT"               // Resource already exists 409
 	Internal             Type = "INTERNAL"               // Server (500) and fallback errors
 	NotFound             Type = "NOT_FOUND"              // For not finding resource
+	TooManyRequest       Type = "TOO_MANY_REQUEST"       // For not finding resource
 	UnprocessableEntity  Type = "UNPROCESSABLE_ENTITY"   // Not able to decode the JSON request - 422
 	PayloadTooLarge      Type = "PAYLOAD_TOO_LARGE"      // For uploading tons of JSON, or an image over the limit - 413
 	ServiceUnavailable   Type = "SERVICE_UNAVAILABLE"    // For long running handlers

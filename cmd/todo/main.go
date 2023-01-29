@@ -9,14 +9,13 @@ import (
 	"os/signal"
 	"todo-api-golang/internal/config"
 	"todo-api-golang/internal/platform/mongo"
+	"todo-api-golang/internal/ratelimit"
 	"todo-api-golang/internal/todo"
 	"todo-api-golang/pkg/logs"
 
 	"syscall"
 	"time"
 
-	"github.com/didip/tollbooth/v7"
-	"github.com/didip/tollbooth/v7/limiter"
 	"github.com/gorilla/handlers"
 	"go.uber.org/zap"
 )
@@ -53,18 +52,14 @@ func startHTTPServer(config *config.Config, logs *logs.Logs) {
 	// CORS
 	cors := handlers.CORS(handlers.AllowedOrigins([]string{"*"}))
 
-	// rate limiting
-	lmt := tollbooth.NewLimiter(1, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Second})
-	lmt.SetIPLookups([]string{"RemoteAddr", "X-Forwarded-For", "X-Real-IP"}).
-		SetMethods([]string{http.MethodPost, http.MethodPatch, http.MethodGet})
-
-	lmth := tollbooth.LimitHandler(lmt, todoApi.Router)
+	// Rate limit
+	ratel := ratelimit.LimitHandler(todoApi.Router, logs, config)
 
 	// create a new server
 	serverAddress := fmt.Sprintf("%s:%s", config.HTTPServerHost, config.HTTPServerPort)
 	server := http.Server{
 		Addr:         serverAddress,     // configure the bind address
-		Handler:      cors(lmth),        // set the default handler
+		Handler:      cors(ratel),       // set the default handler
 		ReadTimeout:  5 * time.Second,   // max time to read request from the client
 		WriteTimeout: 10 * time.Second,  // max time to write response to the client
 		IdleTimeout:  120 * time.Second, // max time for connections using TCP Keep-Alive

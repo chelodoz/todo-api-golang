@@ -9,8 +9,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strings"
 	"todo-api-golang/internal/config"
 
 	"github.com/ory/dockertest/v3"
@@ -41,7 +39,6 @@ func (i *IntegrationTest) StartMongoDB(mongoVersion string) error {
 		Name:         i.config.MongoHost,
 		Repository:   "mongo",
 		Tag:          mongoVersion,
-		Mounts:       []string{getProjectParentRootPath() + "/internal/mongo/initdb.d:/docker-entrypoint-initdb.d:ro"},
 		Networks:     []*dockertest.Network{i.network},
 		ExposedPorts: []string{"27017"},
 		PortBindings: map[docker.Port][]docker.PortBinding{
@@ -122,6 +119,8 @@ func (i *IntegrationTest) StartTodoAPI() (string, error) {
 			Env: []string{
 				fmt.Sprintf("HTTP_SERVER_HOST=%s", i.config.HTTPServerHost),
 				fmt.Sprintf("HTTP_SERVER_PORT=%s", i.config.HTTPServerPort),
+				fmt.Sprintf("HTTP_RATE_LIMIT=%f", i.config.HTTPRateLimit),
+				fmt.Sprintf("HTTP_RATE_INTERVAL=%s", i.config.HTTPRateInterval),
 				fmt.Sprintf("MONGO_USERNAME=%s", i.config.MongoUsername),
 				fmt.Sprintf("MONGO_PASSWORD=%s", i.config.MongoPassword),
 				fmt.Sprintf("MONGO_HOST=%s", i.config.MongoHost),
@@ -188,17 +187,6 @@ func (i *IntegrationTest) StartTodoAPI() (string, error) {
 		return "", err
 	}
 	return basePath, nil
-}
-
-// Get parent root patch directory
-func getProjectParentRootPath() string {
-	p, err := os.Getwd()
-
-	if err != nil {
-		panic("Unable to get project root path")
-	}
-	parent := filepath.Dir(p)
-	return strings.ReplaceAll(parent, "\\", "/")
 }
 
 // Remove integration tests containers

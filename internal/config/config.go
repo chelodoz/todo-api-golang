@@ -7,26 +7,30 @@ import (
 // Config stores all configuration of the application.
 // The values are read by viper from a config file or environment variable.
 type Config struct {
-	HTTPServerHost  string `mapstructure:"HTTP_SERVER_HOST"`
-	HTTPServerPort  string `mapstructure:"HTTP_SERVER_PORT"`
-	MongoHost       string `mapstructure:"MONGO_HOST"`
-	MongoPort       string `mapstructure:"MONGO_PORT"`
-	MongoDatabase   string `mapstructure:"MONGO_DATABASE"`
-	MongoCollection string `mapstructure:"MONGO_COLLECTION"`
-	MongoUsername   string `mapstructure:"MONGO_USERNAME"`
-	MongoPassword   string `mapstructure:"MONGO_PASSWORD"`
+	HTTPServerHost   string  `mapstructure:"HTTP_SERVER_HOST"`
+	HTTPServerPort   string  `mapstructure:"HTTP_SERVER_PORT"`
+	HTTPRateLimit    float64 `mapstructure:"HTTP_RATE_LIMIT"`
+	HTTPRateInterval string  `mapstructure:"HTTP_RATE_INTERVAL"`
+	MongoHost        string  `mapstructure:"MONGO_HOST"`
+	MongoPort        string  `mapstructure:"MONGO_PORT"`
+	MongoDatabase    string  `mapstructure:"MONGO_DATABASE"`
+	MongoCollection  string  `mapstructure:"MONGO_COLLECTION"`
+	MongoUsername    string  `mapstructure:"MONGO_USERNAME"`
+	MongoPassword    string  `mapstructure:"MONGO_PASSWORD"`
 }
 
 // IntegrationConfig stores all configuration to run integration tests
 type IntegrationConfig struct {
-	HTTPServerHost  string `mapstructure:"INTEGRATION_HTTP_SERVER_HOST"`
-	HTTPServerPort  string `mapstructure:"INTEGRATION_HTTP_SERVER_PORT"`
-	MongoHost       string `mapstructure:"INTEGRATION_MONGO_HOST"`
-	MongoPort       string `mapstructure:"INTEGRATION_MONGO_PORT"`
-	MongoDatabase   string `mapstructure:"INTEGRATION_MONGO_DATABASE"`
-	MongoCollection string `mapstructure:"INTEGRATION_MONGO_COLLECTION"`
-	MongoUsername   string `mapstructure:"INTEGRATION_MONGO_USERNAME"`
-	MongoPassword   string `mapstructure:"INTEGRATION_MONGO_PASSWORD"`
+	HTTPServerHost   string  `mapstructure:"INTEGRATION_HTTP_SERVER_HOST"`
+	HTTPServerPort   string  `mapstructure:"INTEGRATION_HTTP_SERVER_PORT"`
+	HTTPRateLimit    float64 `mapstructure:"INTEGRATION_HTTP_RATE_LIMIT"`
+	HTTPRateInterval string  `mapstructure:"INTEGRATION_HTTP_RATE_INTERVAL"`
+	MongoHost        string  `mapstructure:"INTEGRATION_MONGO_HOST"`
+	MongoPort        string  `mapstructure:"INTEGRATION_MONGO_PORT"`
+	MongoDatabase    string  `mapstructure:"INTEGRATION_MONGO_DATABASE"`
+	MongoCollection  string  `mapstructure:"INTEGRATION_MONGO_COLLECTION"`
+	MongoUsername    string  `mapstructure:"INTEGRATION_MONGO_USERNAME"`
+	MongoPassword    string  `mapstructure:"INTEGRATION_MONGO_PASSWORD"`
 }
 
 func LoadConfig(path string) (*Config, error) {
