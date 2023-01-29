@@ -60,7 +60,6 @@ func LogMiddleware(log *logs.Logs) mux.MiddlewareFunc {
 				ResponseWriter: w,
 				StatusCode:     http.StatusOK,
 			}
-
 			log.Logger.Info(
 				"Start http request",
 				zap.String("method", r.Method),

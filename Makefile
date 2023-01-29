@@ -4,8 +4,11 @@ build:
 run: build
 	@./bin/todo
 
-test:
-	@go test -v ./... -cover      
+unittest:
+	@go test -v ./... -cover
+
+integrationtest:
+	@go test -v ./integration --tags=integration
 
 check_swagger_install:
 	which swagger || go install github.com/go-swagger/go-swagger/cmd/swagger

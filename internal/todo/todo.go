@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"todo-api-golang/internal/config"
 	"todo-api-golang/internal/todo/note"
+	"todo-api-golang/internal/trace"
 	"todo-api-golang/pkg/health"
 	"todo-api-golang/pkg/logs"
 
@@ -42,6 +43,7 @@ func NewApi(config *config.Config, mongoClient *mongo.Client, logs *logs.Logs) (
 func setupRouter(noteHandler note.Handler, logger *logs.Logs) *mux.Router {
 	router := mux.NewRouter()
 	base := router.PathPrefix("/api/v1").Subrouter()
+	base.Use(trace.ContextIDMiddleware(logger))
 	base.Use(LogMiddleware(logger))
 
 	base.HandleFunc("/health", health.HealthCheck).Methods(http.MethodGet)
