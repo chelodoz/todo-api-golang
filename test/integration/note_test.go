@@ -21,7 +21,7 @@ import (
 var basePath string
 
 func TestMain(m *testing.M) {
-	config, err := config.LoadIntegrationConfig("./..")
+	config, err := config.LoadIntegrationConfig("./../..")
 	if err != nil {
 		log.Fatal("cannot load config:", err)
 	}

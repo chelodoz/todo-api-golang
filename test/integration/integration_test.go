@@ -106,7 +106,7 @@ func (i *IntegrationTest) StartTodoAPI() (string, error) {
 
 	r, err := i.pool.BuildAndRunWithBuildOptions(
 		&dockertest.BuildOptions{
-			ContextDir: "../",
+			ContextDir: "../../",
 			Dockerfile: "Dockerfile",
 		},
 		&dockertest.RunOptions{

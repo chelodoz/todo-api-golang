@@ -9,7 +9,7 @@ unittest:
 
 integrationtest:
 	@go clean -testcache
-	@go test -v ./integration --tags=integration
+	@go test -v ./test/integration --tags=integration
 
 check_swagger_install:
 	which swagger || go install github.com/go-swagger/go-swagger/cmd/swagger

@@ -13,6 +13,7 @@
   - [Integration tests](#integration-test)
   - [Swagger](#swagger)
   - [Generate mocks](#generate-mocks)
+- [Graceful shutdown](#graceful-shutdown)
 - [Pre commit](#pre-commit)
 - [Project Layout](#project-layout)
 - [API Definition](#api-definition)
@@ -118,6 +119,12 @@ Run `go install github.com/vektra/mockery/v2@latest` to install mockery CLI.
 
 Use the command `make mocks` to generate the mocks of the interfaces in /internal/todo/note folder.
 
+## Graceful shutdown
+
+A `graceful shutdown in a process` is when the OS (operating system) can safely shut down its processes and close all connections, taking as much time as needed.
+
+To be able to achieve that, one has to listen to [Termination signals]("https://www.gnu.org/software/libc/manual/html_node/Termination-Signals.html") that are sent to the application by the process manager, and act accordingly. A delay of 30 seconds was implemented at the moment of listening for a termination signal in order to shut down the server.
+
 ## Pre commit
 
 To maintain high code quality we opted to use [Pre commit]("https://pre-commit.com/") which allows to run hooks to automatically point out problems in code such as missing semicolons, trailing whitespace, and debug statements. It can also be configured to run tests, linter, dependency checking and other commands.
@@ -137,7 +144,8 @@ The project uses the following project layout:
 ├── cmd                main applications
 │   └── todo             api server setup
 ├── docs               api documentation
-├── integration        integration tests
+├── test               non-unit tests
+│   └── integration      integration tests
 ├── internal           private application and library code
 │   ├── config           configuration library
 │   ├── platform         provide support for databases, authentication
