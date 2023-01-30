@@ -4,6 +4,7 @@ package todo
 import (
 	"net/http"
 	"todo-api-golang/internal/config"
+	"todo-api-golang/internal/platform/mongo"
 	"todo-api-golang/internal/todo/note"
 	"todo-api-golang/internal/trace"
 	"todo-api-golang/pkg/health"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/go-playground/validator"
 	"github.com/gorilla/mux"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 )
 
@@ -23,7 +23,7 @@ type APIServer struct {
 }
 
 // NewApi creates the default configuration for the http server and set up routing.
-func NewApi(config *config.Config, mongoClient *mongo.Client, logs *logs.Logs) (*APIServer, error) {
+func NewApi(config *config.Config, mongoClient mongo.ClientHelper, logs *logs.Logs) (*APIServer, error) {
 
 	noteRepository := note.NewRepository(mongoClient, config)
 	noteService := note.NewService(noteRepository)

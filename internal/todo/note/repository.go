@@ -9,9 +9,10 @@ import (
 	"github.com/google/uuid"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"go.mongodb.org/mongo-driver/mongo"
+	cmongo "todo-api-golang/internal/platform/mongo"
 )
 
 // Repository is a common interface to perform operations related to notes and infrastructure layer.
@@ -26,12 +27,12 @@ type Repository interface {
 
 // repository represents the repository used for interacting with notes records.
 type repository struct {
-	client *mongo.Client
+	client cmongo.ClientHelper
 	config *config.Config
 }
 
 // NewRepository instantiates the note repository.
-func NewRepository(client *mongo.Client, config *config.Config) Repository {
+func NewRepository(client cmongo.ClientHelper, config *config.Config) Repository {
 	return &repository{
 		client: client,
 		config: config,
@@ -39,8 +40,10 @@ func NewRepository(client *mongo.Client, config *config.Config) Repository {
 }
 
 // getCollection retrieve a mongo collection.
-func (r *repository) getCollection() *mongo.Collection {
-	return r.client.Database(r.config.MongoDatabase).Collection(r.config.MongoCollection)
+func (r *repository) getCollection() cmongo.CollectionHelper {
+	database := r.client.Database(r.config.MongoDatabase)
+
+	return database.Collection(r.config.MongoCollection)
 }
 
 // Create inserts a new note record.
@@ -124,7 +127,7 @@ func (r *repository) Update(note *Note, ctx context.Context) (*Note, error) {
 
 	result, err := collection.UpdateOne(ctx, filter, update)
 
-	if result.MatchedCount == 0 {
+	if result.(*mongo.UpdateResult).MatchedCount == 0 {
 		return nil, ErrFoundingNote
 	}
 
