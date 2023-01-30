@@ -1,3 +1,4 @@
+// todo package include application logic related with the todo feature.
 package todo
 
 import (
@@ -14,10 +15,11 @@ import (
 	"go.uber.org/zap"
 )
 
+// APIServer is the handles the setup of a todo api.
 type APIServer struct {
 	NoteHandler note.Handler
 	Router      *mux.Router
-	Logger      *logs.Logs
+	Logs        *logs.Logs
 }
 
 // NewApi creates the default configuration for the http server and set up routing.
@@ -32,20 +34,22 @@ func NewApi(config *config.Config, mongoClient *mongo.Client, logs *logs.Logs) (
 	}
 	noteHandler := note.NewHandler(noteService, validator)
 
+	router := setupRoutes(noteHandler, logs, config)
+
 	return &APIServer{
 		NoteHandler: noteHandler,
-		Router:      setupRouter(noteHandler, logs),
-		Logger:      logs,
+		Router:      router,
+		Logs:        logs,
 	}, nil
 }
 
-// SetupRoutes create the routes for the todo api
-func setupRouter(noteHandler note.Handler, log *logs.Logs) *mux.Router {
+// setupRoutes create the routes for the todo api.
+func setupRoutes(noteHandler note.Handler, logs *logs.Logs, config *config.Config) *mux.Router {
 	router := mux.NewRouter()
 	base := router.PathPrefix("/api/v1").Subrouter()
 
-	base.Use(trace.ContextIDMiddleware(log))
-	base.Use(LogMiddleware(log))
+	base.Use(trace.ContextIDMiddleware(logs))
+	base.Use(LogMiddleware(logs))
 
 	base.HandleFunc("/health", health.HealthCheck).Methods(http.MethodGet)
 	base.HandleFunc("/notes", noteHandler.GetAll).Methods(http.MethodGet)

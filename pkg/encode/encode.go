@@ -1,3 +1,4 @@
+// encode package include a set of functions to handle encoding and decoding.
 package encode
 
 import (
@@ -12,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// WriteResponse sets the status code and the response body using response writer
+// WriteResponse sets the status code and the response body using response writer.
 func WriteResponse(rw http.ResponseWriter, code int, data any) {
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(code)
@@ -22,7 +23,7 @@ func WriteResponse(rw http.ResponseWriter, code int, data any) {
 	}
 }
 
-// WriteError sets the status code and the response body of an ErrorResponse using response writer
+// WriteError sets the status code and the response body of an ErrorResponse using response writer.
 func WriteError(rw http.ResponseWriter, error *apierror.ErrorResponse) {
 	rw.Header().Add("Content-Type", "application/problem+json")
 	rw.WriteHeader(error.Code)
@@ -32,7 +33,7 @@ func WriteError(rw http.ResponseWriter, error *apierror.ErrorResponse) {
 	}
 }
 
-// GetUriParam returns the value of a http uri param
+// GetUriParam returns the value of a http uri param.
 func GetUriParam(r *http.Request, uriParam string) (string, error) {
 	vars := mux.Vars(r)
 	queryParam, ok := vars[uriParam]
@@ -42,17 +43,17 @@ func GetUriParam(r *http.Request, uriParam string) (string, error) {
 	return queryParam, nil
 }
 
-// ReadRequestBody decodes the json body of an http request
+// ReadRequestBody decodes the json body of an http request.
 func ReadRequestBody(r *http.Request, data any) error {
 	return json.NewDecoder(r.Body).Decode(data)
 }
 
-// ReadResponseBody decodes the json body of an http response
+// ReadResponseBody decodes the json body of an http response.
 func ReadResponseBody(r *http.Response, data any) error {
 	return json.NewDecoder(r.Body).Decode(data)
 }
 
-// CreateRequest encodes a struct to a io reader interface
+// CreateRequest encodes a struct to a io reader interface.
 func CreateRequest(data any) (io.Reader, error) {
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(data)

@@ -1,3 +1,4 @@
+// health package include a reusable health check handler
 package health
 
 import (

@@ -1,13 +1,14 @@
+// note package include application logic related with the note sub feature.
 package note
 
 import (
-	"context"
-	"net/http"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 )
 
+// Note defines the fields of a note.
 type Note struct {
 	ID          uuid.UUID `bson:"_id,omitempty"`
 	Name        string    `bson:"name,omitempty"`
@@ -17,7 +18,18 @@ type Note struct {
 	UpdatedAt   time.Time `bson:"updatedAt,omitempty"`
 }
 
+// List of all possible errors managed by the note package.
+var (
+	ErrInvalidNoteId  = errors.New("error invalid id")
+	ErrCreatingNoteId = errors.New("error creating note id")
+	ErrDecodingNote   = errors.New("error decoding note")
+	ErrUpdatingNote   = errors.New("error updating note")
+	ErrCreatingNote   = errors.New("error creating note")
+	ErrFoundingNote   = errors.New("error founding note")
+)
+
 // swagger:enum Status
+// State is a type that defines all possible states of a note.
 type Status string
 
 const (
@@ -26,6 +38,7 @@ const (
 	Done       Status = "Done"
 )
 
+// IsValid defines when a status is a valid value.
 func (s Status) IsValid() bool {
 	switch s {
 	case Todo, InProgress, Done:
@@ -33,27 +46,4 @@ func (s Status) IsValid() bool {
 	default:
 		return false
 	}
-}
-
-type Handler interface {
-	Create(rw http.ResponseWriter, r *http.Request)
-	GetById(rw http.ResponseWriter, r *http.Request)
-	GetAll(rw http.ResponseWriter, r *http.Request)
-	Update(rw http.ResponseWriter, r *http.Request)
-}
-
-//go:generate mockery --name=Repository --output=note --inpackage=true --filename=repository_mock.go
-type Repository interface {
-	Create(note *Note, ctx context.Context) (*Note, error)
-	GetById(id uuid.UUID, ctx context.Context) (*Note, error)
-	GetAll(ctx context.Context) ([]Note, error)
-	Update(note *Note, ctx context.Context) (*Note, error)
-}
-
-//go:generate mockery --name=Service --output=note --inpackage=true --filename=service_mock.go
-type Service interface {
-	Create(note *Note, ctx context.Context) (*Note, error)
-	GetById(id uuid.UUID, ctx context.Context) (*Note, error)
-	GetAll(ctx context.Context) ([]Note, error)
-	Update(note *Note, ctx context.Context) (*Note, error)
 }

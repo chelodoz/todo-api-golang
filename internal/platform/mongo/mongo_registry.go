@@ -1,3 +1,4 @@
+// mongo package include mongo db client related methods.
 package mongo
 
 import (
@@ -21,6 +22,7 @@ var (
 			Build()
 )
 
+// uuidEncodeValue perform a transformation from a uuid to store as a binary key in mongodb.
 func uuidEncodeValue(ec bsoncodec.EncodeContext, vw bsonrw.ValueWriter, val reflect.Value) error {
 	if !val.IsValid() || val.Type() != tUUID {
 		return bsoncodec.ValueEncoderError{Name: "uuidEncodeValue", Types: []reflect.Type{tUUID}, Received: val}
@@ -29,6 +31,7 @@ func uuidEncodeValue(ec bsoncodec.EncodeContext, vw bsonrw.ValueWriter, val refl
 	return vw.WriteBinaryWithSubtype(b[:], uuidSubtype)
 }
 
+// uuidEncodeValue perform a transformation from mongodb binary key to uuid.
 func uuidDecodeValue(dc bsoncodec.DecodeContext, vr bsonrw.ValueReader, val reflect.Value) error {
 	if !val.CanSet() || val.Type() != tUUID {
 		return bsoncodec.ValueDecoderError{Name: "uuidDecodeValue", Types: []reflect.Type{tUUID}, Received: val}

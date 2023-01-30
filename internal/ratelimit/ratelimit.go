@@ -15,11 +15,7 @@ import (
 
 func LimitHandler(router http.Handler, log *logs.Logs, config *config.Config) http.Handler {
 
-	errorMessage := &apierror.ErrorResponse{
-		Type:    apierror.TooManyRequest,
-		Message: "You have reached maximum request limit.",
-		Code:    http.StatusTooManyRequests,
-	}
+	errorMessage := apierror.NewTooManyRequest()
 	jsonBytes, err := json.Marshal(errorMessage)
 	if err != nil {
 		log.Logger.Error(err.Error())

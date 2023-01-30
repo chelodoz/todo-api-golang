@@ -14,6 +14,8 @@
 // - application/json
 //
 // swagger:meta
+
+// note package include application logic related with the note sub feature.
 package note
 
 // swagger:parameters CreateNoteRequestWrapper

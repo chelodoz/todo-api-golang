@@ -1,5 +1,6 @@
 //go:build integration
 
+// integration package include logic related to todo api integration tests
 package integration
 
 import (
@@ -17,6 +18,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// IntegrationTest define the resources used to perform an integration tests
 type IntegrationTest struct {
 	pool     *dockertest.Pool
 	network  *dockertest.Network
@@ -25,6 +27,7 @@ type IntegrationTest struct {
 	apiRes   *dockertest.Resource
 }
 
+// NewIntegrationTest creates the integration test resources.
 func NewIntegrationTest(pool *dockertest.Pool, network *dockertest.Network, config *config.IntegrationConfig) *IntegrationTest {
 	return &IntegrationTest{
 		pool:    pool,
@@ -33,7 +36,7 @@ func NewIntegrationTest(pool *dockertest.Pool, network *dockertest.Network, conf
 	}
 }
 
-// Create a mongo db container to perform integrations tests
+// Create a mongo db container to perform integrations tests.
 func (i *IntegrationTest) StartMongoDB(mongoVersion string) error {
 	r, err := i.pool.RunWithOptions(&dockertest.RunOptions{
 		Name:         i.config.MongoHost,
@@ -97,7 +100,7 @@ func (i *IntegrationTest) StartMongoDB(mongoVersion string) error {
 	return nil
 }
 
-// Create a mongo db container to perform integrations tests
+// Create a todo api container to perform integrations tests.
 func (i *IntegrationTest) StartTodoAPI() (string, error) {
 	apiContainerName := "todointegrationtest"
 
@@ -189,7 +192,7 @@ func (i *IntegrationTest) StartTodoAPI() (string, error) {
 	return basePath, nil
 }
 
-// Remove integration tests containers
+// Remove integration tests containers.
 func (i *IntegrationTest) CleanUp(code int) {
 	fmt.Println("Removing resources.")
 	if i.mongoRes != nil {

@@ -1,3 +1,4 @@
+// note package include application logic related with the note sub feature.
 package note
 
 import (
@@ -11,11 +12,21 @@ import (
 	"github.com/go-playground/validator"
 )
 
+// Handler is a common interface to perform operations related to notes and http.
+type Handler interface {
+	Create(rw http.ResponseWriter, r *http.Request)
+	GetById(rw http.ResponseWriter, r *http.Request)
+	GetAll(rw http.ResponseWriter, r *http.Request)
+	Update(rw http.ResponseWriter, r *http.Request)
+}
+
+// handler is the implementation of the operations related to notes.
 type handler struct {
 	service  Service
 	validate *validator.Validate
 }
 
+// NewHandler creates a note handler which have operations related to notes.
 func NewHandler(service Service, validator *validator.Validate) Handler {
 	return &handler{
 		service:  service,
@@ -34,7 +45,7 @@ func NewHandler(service Service, validator *validator.Validate) Handler {
 // 422: ErrorResponseWrapper
 // 500: ErrorResponseWrapper
 
-// Create handles POST requests and create a note into the data store
+// Create handles POST requests and create a note into the data store.
 func (h *handler) Create(rw http.ResponseWriter, r *http.Request) {
 	var createNoteRequest CreateNoteRequest
 
@@ -78,7 +89,7 @@ func (h *handler) Create(rw http.ResponseWriter, r *http.Request) {
 // 200: GetNotesResponse
 // 500: ErrorResponseWrapper
 
-// GetAll handles GET requests and returns all the notes from the data store
+// GetAll handles GET requests and returns all the notes from the data store.
 func (h *handler) GetAll(rw http.ResponseWriter, r *http.Request) {
 	notes, err := h.service.GetAll(r.Context())
 
@@ -115,7 +126,7 @@ func (h *handler) GetAll(rw http.ResponseWriter, r *http.Request) {
 // 200: GetNoteResponse
 // 500: ErrorResponseWrapper
 
-// GetNote handles GET/{noteId} requests and returns a note from the data store
+// GetNote handles GET/{noteId} requests and returns a note from the data store.
 func (h *handler) GetById(rw http.ResponseWriter, r *http.Request) {
 	noteId, err := encode.GetUriParam(r, "noteId")
 	if err != nil {
@@ -162,7 +173,7 @@ func (h *handler) GetById(rw http.ResponseWriter, r *http.Request) {
 // 422: ErrorResponseWrapper
 // 500: ErrorResponseWrapper
 
-// Update handles PATCH requests and updates a note into the data store
+// Update handles PATCH requests and updates a note into the data store.
 func (h *handler) Update(rw http.ResponseWriter, r *http.Request) {
 	var updateNoteRequest UpdateNoteRequest
 	noteId, err := encode.GetUriParam(r, "noteId")

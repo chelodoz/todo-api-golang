@@ -1,3 +1,4 @@
+// note package include application logic related with the note sub feature.
 package note
 
 // Create a note request

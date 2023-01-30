@@ -1,3 +1,4 @@
+// main package include the entry point of the todo api application
 package main
 
 import (
@@ -20,6 +21,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// main is the entry point of the todo rest api.
 func main() {
 	logs, err := logs.New()
 	if err != nil {
@@ -34,6 +36,7 @@ func main() {
 	startHTTPServer(config, logs)
 }
 
+// startHTTP server initialize the server http.
 func startHTTPServer(config *config.Config, logs *logs.Logs) {
 
 	mongoClient, err := mongo.NewDbClient(config, logs)
@@ -52,7 +55,7 @@ func startHTTPServer(config *config.Config, logs *logs.Logs) {
 	// CORS
 	cors := handlers.CORS(handlers.AllowedOrigins([]string{"*"}))
 
-	// Rate limit
+	// // Rate limit
 	ratel := ratelimit.LimitHandler(todoApi.Router, logs, config)
 
 	// create a new server

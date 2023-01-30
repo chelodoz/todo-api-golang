@@ -1,3 +1,4 @@
+// logs package include the configuration for the loggers of the application
 package logs
 
 import (
@@ -8,6 +9,7 @@ type Logs struct {
 	Logger *zap.Logger
 }
 
+// New creates the default logger configuration
 func New() (*Logs, error) {
 	logger, err := zap.NewProduction()
 	if err != nil {

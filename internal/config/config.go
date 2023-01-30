@@ -1,3 +1,4 @@
+// config package manages configuration variables of .env file and env variables.
 package config
 
 import (
@@ -19,7 +20,8 @@ type Config struct {
 	MongoPassword    string  `mapstructure:"MONGO_PASSWORD"`
 }
 
-// IntegrationConfig stores all configuration to run integration tests
+// IntegrationConfig stores all configuration to run integration tests.
+// The values are read by viper from a config file or environment variable.
 type IntegrationConfig struct {
 	HTTPServerHost   string  `mapstructure:"INTEGRATION_HTTP_SERVER_HOST"`
 	HTTPServerPort   string  `mapstructure:"INTEGRATION_HTTP_SERVER_PORT"`
@@ -33,16 +35,19 @@ type IntegrationConfig struct {
 	MongoPassword    string  `mapstructure:"INTEGRATION_MONGO_PASSWORD"`
 }
 
+// LoadConfig set de default configuration type for the application.
 func LoadConfig(path string) (*Config, error) {
 	var config Config
 	return loadConfig(path, config)
 }
+
+// LoadConfig set de default configuration type for the integration tests.
 func LoadIntegrationConfig(path string) (*IntegrationConfig, error) {
 	var config IntegrationConfig
 	return loadConfig(path, config)
 }
 
-// LoadConfig reads configuration from file or environment variables.
+// loadConfig reads configuration from file or environment variables.
 func loadConfig[T any](path string, config T) (*T, error) {
 	viper.AddConfigPath(path)
 	viper.AddConfigPath(".")

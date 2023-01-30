@@ -1,3 +1,4 @@
+// trace package include a middleware to add X-Request-Id and X-Trace-Id to context used and http responses headers.
 package trace
 
 import (
@@ -11,16 +12,16 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// ContextKeyID is used for context.Context value
+// ContextKeyID is used as a type for store context trace and request ids.
 type ContextKeyID string
 
-// ContextKeyRequestID is the ContextKeyID for X-Request-Id
+// ContextKeyRequestID is the ContextKeyID for X-Request-Id.
 const ContextKeyRequestID ContextKeyID = "X-Request-Id"
 
-// ContextKeyTraceID is the ContextKeyID for X-Trace-Id
+// ContextKeyTraceID is the ContextKeyID for X-Trace-Id.
 const ContextKeyTraceID ContextKeyID = "X-Trace-Id"
 
-// GetContextKey will get context key id and return it as a string
+// GetContextKey will get context key id and return it as a string.
 func GetContextKey(ctx context.Context, contextKey ContextKeyID) string {
 
 	id := ctx.Value(contextKey)
@@ -31,7 +32,7 @@ func GetContextKey(ctx context.Context, contextKey ContextKeyID) string {
 	return ""
 }
 
-// ContextIDMiddleware store request and trace id in the request context, response header and logger
+// ContextIDMiddleware store request and trace id in the request context, response header and logger.
 func ContextIDMiddleware(log *logs.Logs) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {

@@ -1,3 +1,4 @@
+// health package include a reusable health check handler.
 package health
 
 import (
@@ -18,7 +19,7 @@ type HealthResponse struct {
 // responses:
 // 200: HealthResponseWrapper
 
-// HealthCheck return a Healthy message in the response
+// HealthCheck return a Healthy message in the response.
 func HealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

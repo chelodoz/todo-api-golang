@@ -1,3 +1,4 @@
+// mongo package include mongo db client related methods.
 package mongo
 
 import (
