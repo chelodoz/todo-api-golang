@@ -40,6 +40,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git fetch origin master
+          git fetch origin main
           go run . -ci github-actions
       - uses: codecov/codecov-action@v3
