@@ -1,3 +1,4 @@
+// ratelimit package include a method to perform rate limiting
 package ratelimit
 
 import (
@@ -13,6 +14,7 @@ import (
 	"github.com/didip/tollbooth/v7/limiter"
 )
 
+// LimitHandler perform rate limiting on api requests.
 func LimitHandler(router http.Handler, log *logs.Logs, config *config.Config) http.Handler {
 
 	errorMessage := apierror.NewTooManyRequest()
