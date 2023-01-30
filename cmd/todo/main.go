@@ -28,7 +28,7 @@ func main() {
 
 	config, err := config.LoadConfig("./../..")
 	if err != nil {
-		logs.Logger.Fatal("Cannot load config", zap.String("details", err.Error()))
+		logs.Logger.Fatal("Cannot load config", zap.String("detail", err.Error()))
 	}
 
 	startHTTPServer(config, logs)
@@ -38,12 +38,12 @@ func startHTTPServer(config *config.Config, logs *logs.Logs) {
 
 	mongoClient, err := mongo.NewDbClient(config, logs)
 	if err != nil {
-		logs.Logger.Fatal("Error starting mongo client", zap.String("details", err.Error()))
+		logs.Logger.Fatal("Error starting mongo client", zap.String("detail", err.Error()))
 	}
 
 	todoApi, err := todo.NewApi(config, mongoClient, logs)
 	if err != nil {
-		logs.Logger.Fatal("Error starting ToDo API", zap.String("details", err.Error()))
+		logs.Logger.Fatal("Error starting ToDo API", zap.String("detail", err.Error()))
 	}
 
 	// swagger
@@ -70,7 +70,7 @@ func startHTTPServer(config *config.Config, logs *logs.Logs) {
 		logs.Logger.Info("Starting ToDo API server", zap.String("address", serverAddress))
 
 		if err := server.ListenAndServe(); err != nil {
-			logs.Logger.Fatal("Error starting ToDo API server", zap.String("details", err.Error()))
+			logs.Logger.Fatal("Error starting ToDo API server", zap.String("detail", err.Error()))
 		}
 	}()
 
@@ -80,14 +80,14 @@ func startHTTPServer(config *config.Config, logs *logs.Logs) {
 
 	// block until a signal is received.
 	sig := <-ch
-	logs.Logger.Info("Shutdown signal received", zap.String("details", sig.String()))
+	logs.Logger.Info("Shutdown signal received", zap.String("detail", sig.String()))
 
 	// gracefully shutdown the server, waiting max 30 seconds for current operations to complete
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	if err = server.Shutdown(ctx); err != nil {
-		logs.Logger.Fatal("Error doing the shutdown", zap.String("details", err.Error()))
+		logs.Logger.Fatal("Error doing the shutdown", zap.String("detail", err.Error()))
 	}
 
 	logs.Logger.Info("Server shutdown completed")

@@ -9,9 +9,9 @@ import (
 	"testing"
 	"todo-api-golang/internal/config"
 	"todo-api-golang/internal/todo/note"
-	appError "todo-api-golang/pkg/error"
+	"todo-api-golang/pkg/apierror"
+	"todo-api-golang/pkg/encode"
 	"todo-api-golang/pkg/health"
-	"todo-api-golang/pkg/util"
 
 	"github.com/ory/dockertest/v3"
 	"github.com/stretchr/testify/assert"
@@ -57,7 +57,7 @@ func createNote(t *testing.T) note.CreateNoteResponse {
 		Name:        "Go to the bank",
 		Description: "Schedule an appointment to the bank",
 	}
-	request, err := util.CreateRequest(createNoteRequest)
+	request, err := encode.CreateRequest(createNoteRequest)
 	assert.NoError(t, err)
 
 	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/notes", basePath), request)
@@ -69,7 +69,7 @@ func createNote(t *testing.T) note.CreateNoteResponse {
 	defer response.Body.Close()
 
 	var createNoteResponse note.CreateNoteResponse
-	err = util.ReadResponseBody(response, &createNoteResponse)
+	err = encode.ReadResponseBody(response, &createNoteResponse)
 	assert.NoError(t, err)
 	return createNoteResponse
 }
@@ -83,7 +83,7 @@ func getNoteById(t *testing.T, id string) note.GetNoteResponse {
 	defer response.Body.Close()
 
 	var getNoteResponse note.GetNoteResponse
-	err = util.ReadResponseBody(response, &getNoteResponse)
+	err = encode.ReadResponseBody(response, &getNoteResponse)
 	assert.NoError(t, err)
 	return getNoteResponse
 }
@@ -97,7 +97,7 @@ func TestRetrieveHealth_InputIsValid_ShouldReturnStatus200WithHealthyResponse(t 
 	defer response.Body.Close()
 
 	var healthResponse health.HealthResponse
-	err = util.ReadResponseBody(response, &healthResponse)
+	err = encode.ReadResponseBody(response, &healthResponse)
 	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusOK, response.StatusCode)
@@ -109,7 +109,7 @@ func TestCreateNote_InputIsValid_ShouldReturnStatus201WithResourceCreated(t *tes
 		Name:        "Go to the bank",
 		Description: "Schedule an appointment to the bank",
 	}
-	newRequest, err := util.CreateRequest(createNoteRequest)
+	newRequest, err := encode.CreateRequest(createNoteRequest)
 	assert.NoError(t, err)
 
 	fmt.Println(basePath)
@@ -121,7 +121,7 @@ func TestCreateNote_InputIsValid_ShouldReturnStatus201WithResourceCreated(t *tes
 	assert.NoError(t, err)
 
 	var createNoteResponse note.CreateNoteResponse
-	err = util.ReadResponseBody(response, &createNoteResponse)
+	err = encode.ReadResponseBody(response, &createNoteResponse)
 	assert.NoError(t, err)
 	defer response.Body.Close()
 
@@ -138,7 +138,7 @@ func TestUpdateNote_InputIsValid_ShouldReturnStatus204NoContent(t *testing.T) {
 		Description: "Schedule an appointment to the bank",
 		Status:      "In Progress",
 	}
-	updateRequest, err := util.CreateRequest(updateNoteRequest)
+	updateRequest, err := encode.CreateRequest(updateNoteRequest)
 	assert.NoError(t, err)
 
 	newUpdateRequest, err := http.NewRequest(http.MethodPatch, fmt.Sprintf("%s/notes/%s", basePath, createNoteResponse.ID), updateRequest)
@@ -161,7 +161,7 @@ func TestUpdateNote_InputIsInvalidStatus_ShouldReturnStatus400BadRequest(t *test
 		Description: "Schedule an appointment to the bank",
 		Status:      "Invalid status",
 	}
-	updateRequest, err := util.CreateRequest(updateNoteRequest)
+	updateRequest, err := encode.CreateRequest(updateNoteRequest)
 	assert.NoError(t, err)
 
 	newUpdateRequest, err := http.NewRequest(http.MethodPatch, fmt.Sprintf("%s/notes/%s", basePath, createNoteResponse.ID), updateRequest)
@@ -172,8 +172,8 @@ func TestUpdateNote_InputIsInvalidStatus_ShouldReturnStatus400BadRequest(t *test
 	assert.NoError(t, err)
 	defer updateResponse.Body.Close()
 
-	var errorResponse appError.ErrorResponse
-	err = util.ReadResponseBody(updateResponse, &errorResponse)
+	var errorResponse apierror.ErrorResponse
+	err = encode.ReadResponseBody(updateResponse, &errorResponse)
 	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, updateResponse.StatusCode)
@@ -192,7 +192,7 @@ func TestRetrieveNoteById_InputIsValidId_ShouldReturnStatus200OK(t *testing.T) {
 	defer response.Body.Close()
 
 	var getNoteResponse note.GetNoteResponse
-	err = util.ReadResponseBody(response, &getNoteResponse)
+	err = encode.ReadResponseBody(response, &getNoteResponse)
 	assert.NoError(t, err)
 
 	assert.EqualValues(t, createNoteResponse, getNoteResponse)

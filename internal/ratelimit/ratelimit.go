@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"todo-api-golang/internal/config"
-	"todo-api-golang/pkg/error"
+	"todo-api-golang/pkg/apierror"
 	"todo-api-golang/pkg/logs"
 
 	"github.com/didip/tollbooth/v7"
@@ -15,8 +15,8 @@ import (
 
 func LimitHandler(router http.Handler, log *logs.Logs, config *config.Config) http.Handler {
 
-	errorMessage := &error.ErrorResponse{
-		Type:    error.TooManyRequest,
+	errorMessage := &apierror.ErrorResponse{
+		Type:    apierror.TooManyRequest,
 		Message: "You have reached maximum request limit.",
 		Code:    http.StatusTooManyRequests,
 	}

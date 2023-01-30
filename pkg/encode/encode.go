@@ -1,4 +1,4 @@
-package util
+package encode
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	appError "todo-api-golang/pkg/error"
+	"todo-api-golang/pkg/apierror"
 
 	"github.com/gorilla/mux"
 )
@@ -23,7 +23,7 @@ func WriteResponse(rw http.ResponseWriter, code int, data any) {
 }
 
 // WriteError sets the status code and the response body of an ErrorResponse using response writer
-func WriteError(rw http.ResponseWriter, error *appError.ErrorResponse) {
+func WriteError(rw http.ResponseWriter, error *apierror.ErrorResponse) {
 	rw.Header().Add("Content-Type", "application/problem+json")
 	rw.WriteHeader(error.Code)
 

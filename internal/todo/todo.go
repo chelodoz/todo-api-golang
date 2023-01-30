@@ -27,7 +27,7 @@ func NewApi(config *config.Config, mongoClient *mongo.Client, logs *logs.Logs) (
 	noteService := note.NewService(noteRepository)
 	validator := validator.New()
 	if err := validator.RegisterValidation("enum", note.ValidateEnum); err != nil {
-		logs.Logger.Error("Failed registering validators for handlers", zap.String("details", err.Error()))
+		logs.Logger.Error("Failed registering validators for handlers", zap.String("detail", err.Error()))
 		return nil, err
 	}
 	noteHandler := note.NewHandler(noteService, validator)

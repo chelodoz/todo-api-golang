@@ -23,4 +23,4 @@ mocks: check_mockery_install
 	go generate ./...
 
 dcbuild:
-	docker compose up --build
+	docker compose up --build -d

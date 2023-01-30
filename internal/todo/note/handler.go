@@ -3,8 +3,8 @@ package note
 import (
 	"errors"
 	"net/http"
-	"todo-api-golang/pkg/error"
-	"todo-api-golang/pkg/util"
+	"todo-api-golang/pkg/apierror"
+	"todo-api-golang/pkg/encode"
 
 	"github.com/google/uuid"
 
@@ -38,13 +38,13 @@ func NewHandler(service Service, validator *validator.Validate) Handler {
 func (h *handler) Create(rw http.ResponseWriter, r *http.Request) {
 	var createNoteRequest CreateNoteRequest
 
-	if err := util.ReadRequestBody(r, &createNoteRequest); err != nil {
-		util.WriteError(rw, error.NewUnprocessableEntity())
+	if err := encode.ReadRequestBody(r, &createNoteRequest); err != nil {
+		encode.WriteError(rw, apierror.NewUnprocessableEntity())
 		return
 	}
 
 	if err := h.validate.Struct(&createNoteRequest); err != nil {
-		util.WriteError(rw, error.NewValidationBadRequest(err.(validator.ValidationErrors)))
+		encode.WriteError(rw, apierror.NewValidationBadRequest(err.(validator.ValidationErrors)))
 		return
 	}
 
@@ -56,7 +56,7 @@ func (h *handler) Create(rw http.ResponseWriter, r *http.Request) {
 	note, err := h.service.Create(newNote, r.Context())
 
 	if err != nil {
-		util.WriteError(rw, error.NewInternal(err.Error()))
+		encode.WriteError(rw, apierror.NewInternal(err.Error()))
 		return
 	}
 
@@ -67,7 +67,7 @@ func (h *handler) Create(rw http.ResponseWriter, r *http.Request) {
 		Status:      note.Status,
 	}
 
-	util.WriteResponse(rw, http.StatusCreated, noteResponse)
+	encode.WriteResponse(rw, http.StatusCreated, noteResponse)
 }
 
 // swagger:route GET /notes Notes Notes
@@ -85,9 +85,9 @@ func (h *handler) GetAll(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, ErrFoundingNote):
-			util.WriteResponse(rw, http.StatusOK, &GetNotesResponse{})
+			encode.WriteResponse(rw, http.StatusOK, &GetNotesResponse{})
 		default:
-			util.WriteError(rw, error.NewInternal(err.Error()))
+			encode.WriteError(rw, apierror.NewInternal(err.Error()))
 		}
 		return
 	}
@@ -104,7 +104,7 @@ func (h *handler) GetAll(rw http.ResponseWriter, r *http.Request) {
 		notesResponse = append(notesResponse, noteResponse)
 	}
 
-	util.WriteResponse(rw, http.StatusOK, &notesResponse)
+	encode.WriteResponse(rw, http.StatusOK, &notesResponse)
 }
 
 // swagger:route GET /notes/{noteId} Notes NoteIdQueryParamWrapper
@@ -117,15 +117,15 @@ func (h *handler) GetAll(rw http.ResponseWriter, r *http.Request) {
 
 // GetNote handles GET/{noteId} requests and returns a note from the data store
 func (h *handler) GetById(rw http.ResponseWriter, r *http.Request) {
-	noteId, err := util.GetUriParam(r, "noteId")
+	noteId, err := encode.GetUriParam(r, "noteId")
 	if err != nil {
-		util.WriteError(rw, error.NewBadRequest(ErrInvalidNoteId.Error()))
+		encode.WriteError(rw, apierror.NewBadRequest(ErrInvalidNoteId.Error()))
 		return
 	}
 
 	uid, err := uuid.Parse(noteId)
 	if err != nil {
-		util.WriteError(rw, error.NewBadRequest(ErrInvalidNoteId.Error()))
+		encode.WriteError(rw, apierror.NewBadRequest(ErrInvalidNoteId.Error()))
 		return
 	}
 
@@ -134,9 +134,9 @@ func (h *handler) GetById(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, ErrFoundingNote):
-			util.WriteError(rw, error.NewNotFound())
+			encode.WriteError(rw, apierror.NewNotFound())
 		default:
-			util.WriteError(rw, error.NewInternal(err.Error()))
+			encode.WriteError(rw, apierror.NewInternal(err.Error()))
 		}
 		return
 	}
@@ -148,7 +148,7 @@ func (h *handler) GetById(rw http.ResponseWriter, r *http.Request) {
 		Status:      note.Status,
 	}
 
-	util.WriteResponse(rw, http.StatusOK, noteResponse)
+	encode.WriteResponse(rw, http.StatusOK, noteResponse)
 }
 
 // swagger:route PATCH /notes/{noteId} Notes UpdateNoteRequestWrapper
@@ -165,25 +165,25 @@ func (h *handler) GetById(rw http.ResponseWriter, r *http.Request) {
 // Update handles PATCH requests and updates a note into the data store
 func (h *handler) Update(rw http.ResponseWriter, r *http.Request) {
 	var updateNoteRequest UpdateNoteRequest
-	noteId, err := util.GetUriParam(r, "noteId")
+	noteId, err := encode.GetUriParam(r, "noteId")
 	if err != nil {
-		util.WriteError(rw, error.NewBadRequest(ErrInvalidNoteId.Error()))
+		encode.WriteError(rw, apierror.NewBadRequest(ErrInvalidNoteId.Error()))
 		return
 	}
 
 	uid, err := uuid.Parse(noteId)
 	if err != nil {
-		util.WriteError(rw, error.NewBadRequest(ErrInvalidNoteId.Error()))
+		encode.WriteError(rw, apierror.NewBadRequest(ErrInvalidNoteId.Error()))
 		return
 	}
 
-	if err := util.ReadRequestBody(r, &updateNoteRequest); err != nil {
-		util.WriteError(rw, error.NewUnprocessableEntity())
+	if err := encode.ReadRequestBody(r, &updateNoteRequest); err != nil {
+		encode.WriteError(rw, apierror.NewUnprocessableEntity())
 		return
 	}
 
 	if err := h.validate.Struct(&updateNoteRequest); err != nil {
-		util.WriteError(rw, error.NewValidationBadRequest(err.(validator.ValidationErrors)))
+		encode.WriteError(rw, apierror.NewValidationBadRequest(err.(validator.ValidationErrors)))
 		return
 	}
 
@@ -199,9 +199,9 @@ func (h *handler) Update(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, ErrFoundingNote):
-			util.WriteError(rw, error.NewNotFound())
+			encode.WriteError(rw, apierror.NewNotFound())
 		default:
-			util.WriteError(rw, error.NewInternal(err.Error()))
+			encode.WriteError(rw, apierror.NewInternal(err.Error()))
 		}
 		return
 	}

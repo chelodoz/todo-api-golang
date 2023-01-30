@@ -2,7 +2,14 @@
 
 - [Introduction](#introduction)
 - [Environment](#environment)
+- [Docker](#docker)
 - [Run](#run)
+- [Make File](#make-file)
+  - [Unit test coverage](#unit-test-coverage)
+  - [Integration tests](#integration-test)
+  - [Swagger](#swagger)
+  - [Generate mocks](#generate-mocks)
+- [Pre commit](#pre-commit)
 - [Project Layout](#project-layout)
 - [API Definition](#api-definition)
   - [Create Note](#create-note)
@@ -24,13 +31,16 @@
   - [Example of Create Note Response Logging](#example-of-create-note-response-logging)
   - [Example of Fatal level error when .env file is missing](#example-of-fatal-level-error-when-env-file-is-missing)
   - [Example of Error level error when 500 error occurs](#example-of-error-level-error-when-500-error-occurs)
-- [Make File](#make-file)
-  - [Generate mocks](#generate-mocks)
-  - [Local run](#local-run)
-  - [Test coverage](#test-coverage)
-  - [Create and start containers](#create-and-start-containers)
-  - [Swagger](#swagger)
-  - [Generate mocks](#generate-mocks)
+- [Rate Limiting](#rate-limiting)
+  - [Get Health Rate Limit](#get-health-rate-limit)
+    - [Get Health Request Rate Limit](#get-health-request-rate-limit)
+    - [Get Health Response Rate Limit](#get-health-response-rate-limit)
+- [Trace](#trace)
+  - [Get Health Trace](#get-health-trace)
+    - [Get Health Request Without Trace Id](#get-health-request-without-trace-id)
+    - [Get Health Response With Trace Id](#get-health-response-with-trace-id)
+    - [Get Health Request With Trace Id](#get-health-request-with-trace-id)
+    - [Get Health Response With System Trace Id](#get-health-response-with-system-trace-id)
 
 ## Introduction
 
@@ -40,17 +50,78 @@ The end goal of this project is to make a simple proof of concept of a RESTful A
 
 If you're have not encountered Go before, you should visit this website [here](https://golang.org/doc/install).
 
+This project was developed using go v1.9.4
+
 ## Environment
 
-The `.env.example` file is provided in the root directory to provide development environment variables change it to `.env` to make it work.
+For the handling of environment variables and the reading of .env/.json/.yaml files, the [Viper]("https://github.com/spf13/viper") library was used.
+
+The `.env.example` file is included in the root directory to provide development environment variables change it to `.env` to make it work.
+
+## Docker
+
+For the creation of the mongo db and mongodb express in docker the following repository was taken as a reference [NaN Labs Devops reference](https://github.com/nanlabs/devops-reference/tree/main/examples/docker/mongodb).
 
 ## Run
 
-To run the code, you will need docker and docker-compose installed on your machine. In the project root, run `docker compose up`.
+To run the code, you will need docker and docker-compose installed on your machine. In the project root, run `docker compose up --build -d` or `make dcbuild` if you have make file installed to create and start all the containers..
 
-You can run it manually without docker using the command `go run ./cmd/todo` or `make run`, to make it work, the environment variable `MONGO_HOST=localhost` must be changed in the .env file to `localhost` instead of the mongo container name.
+You can run it `manually without docker` using the command `go run ./cmd/todo` or `make run`, to make it work, the environment variable `MONGO_HOST=localhost` must be changed in the .env file to `localhost` instead of the mongo container name.
+
+Note that if you plan to run all in containers the env variable must be the container name `MONGO_HOST=mongodb`
 
 After that, you have a RESTful API that is running at `http://127.0.0.1:8080`.
+
+## Make File
+
+The [Make File]("https://linuxhint.com/install-make-ubuntu/") library was used to make a list of useful commands.
+
+- `make build`                  run go build
+- `make run`                    run go run
+- `make unittest`               run go unit tests with coverage
+- `make integrationtest`        run go integration tests package
+- `make check_swagger_install`  define a dependency to install go-swagger cli
+- `make swagger`                run go generate to generate swagger .yaml and json
+- `make check_mockery_install`  define a dependency to install mockery cli
+- `make mocks`                  run go generate to generate mocks of interfaces with go generate tag
+- `make dcbuild`                run all the containers
+
+## Unit test coverage
+
+Use the command `make unittest` to run all the unit tests including coverage
+
+## Integration test
+
+In order to perform integrations tests using real requests the following package was used [Dockertest]("https://github.com/ory/dockertest").
+The idea behind this is to create two containers one for the api and the other for mongo db completely separate from the development containers, run the integration tests by making calls to the test api and then delete both containers.
+
+Use the command `make integrationtest` to run all the integration tests
+
+## Swagger
+
+For the api documentation [Go swagger]("https://goswagger.io/") was the choice, using design first approach the documentation can be generated through code notes.
+
+Run `go install github.com/go-swagger/go-swagger/cmd/swagger` to install mockery CLI.
+
+Use the command `make swagger` to generate the /docs/swagger.yaml and third_party/swagger-ui-4.11.1/swagger.json files from the go-swagger models.
+
+## Generate mocks
+
+For generating mocks [Mockery]("https://github.com/vektra/mockery") package was used.
+
+Run `go install github.com/vektra/mockery/v2@latest` to install mockery CLI.
+
+Use the command `make mocks` to generate the mocks of the interfaces in /internal/todo/note folder.
+
+## Pre commit
+
+To maintain high code quality we opted to use [Pre commit]("https://pre-commit.com/") which allows to run hooks to automatically point out problems in code such as missing semicolons, trailing whitespace, and debug statements. It can also be configured to run tests, linter, dependency checking and other commands.
+
+It can be installed using python running `pip install pre-commit`
+
+Check the `.pre-commit-config.yaml` file to see the hooks
+
+More details on [Pre Commit Golang]("https://github.com/dnephin/pre-commit-golang")
 
 ## Project Layout
 
@@ -58,33 +129,35 @@ The project uses the following project layout:
 
 ```text
 .
-├── cmd                main applications of the project
-│   └── todo             the api server setup
+├── cmd                main applications
+│   └── todo             api server setup
 ├── docs               api documentation
 ├── integration        integration tests
 ├── internal           private application and library code
 │   ├── config           configuration library
-│   ├── platform         mongo db client
-│   └── todo             todo related features
-│        └── note          note related features
+│   ├── platform         provide support for databases, authentication
+│   │     └── mongo         mongo client
+│   ├── todo             todo related features
+│   │     └── note          note related features
+│   └── trace          package for generating request and trace ids
 ├── pkg                public library code
-│   ├── error            standard api errors
+│   ├── apierror         standard api errors
+│   ├── encode           encode and decode helpers
 │   ├── health           health check definition
-│   └── util             utils to handle http requests
-└──  third_party          third party libraries
-     └── swagger-ui      static files from swagger ui
+│   └── logs             logs setup
+└── third_party        third party libraries
+     └── swagger-ui        static files from swagger ui
 
 ```
 
 The top level directories `cmd`, `internal`, `pkg` are commonly found in other popular Go projects, as explained in
-[Standard Go Project Layout](https://github.com/golang-standards/project-layout).
+[Standard Go Project Layout](https://github.com/golang-standards/project-layout) and [Package Oriented Design]("https://www.ardanlabs.com/blog/2017/02/package-oriented-design.html").
 
 Within `internal` and `pkg`, packages are structured by features in order to achieve the so-called
 [screaming architecture](https://blog.cleancoder.com/uncle-bob/2011/09/30/Screaming-Architecture.html). For example,
 the `todo` directory contains the application logic related with the todo feature.
 
-Within each feature package, code are organized in layers (handlers, service, repository), following the dependency guidelines
-as described in the [clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html).
+Within each feature package, code are organized in layers (handlers, service, repository), following the dependency guidelines as described in the [clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html).
 
 ## API Definition
 
@@ -240,7 +313,7 @@ The log itself is a json structure with the following keys
 - `url`         define the resource called in the api
 - `statusCode`  define the response status code
 - `duration`    define the duration of the request in nanoseconds
-- `details`     define extra error information
+- `detail`     define extra error information
 - `stacktrace`  define extra trace information
 
 Logging was included at the beginning and end of the requests in order to maintain traceability.
@@ -294,7 +367,7 @@ POST api/v1/notes
     "ts": 1674963617.935728,
     "caller": "todo/main.go:29",
     "msg": "Cannot load config",
-    "details": "Config File \".env\" Not Found in \"[C:\\\\Users\\\\User\\\\Documents\\\\todo-api-golang C:\\\\Users\\\\User\\\\Documents\\\\todo-api-golang\\\\cmd\\\\todo]\"",
+    "detail": "Config File \".env\" Not Found in \"[C:\\\\Users\\\\User\\\\Documents\\\\todo-api-golang C:\\\\Users\\\\User\\\\Documents\\\\todo-api-golang\\\\cmd\\\\todo]\"",
     "stacktrace": "main.main\n\tC:/Users/User/Documents/todo-api-golang/cmd/todo/main.go:29\nruntime.main\n\tC:/Program Files/Go/src/runtime/proc.go:250"
 }
  ```
@@ -318,28 +391,108 @@ In this case a body of the response is included to provide additional informatio
 }
  ```
 
-## Make File
+## Rate Limiting
 
-### Local run
+Rate limiting is a technique used to control the number of requests a user can make to an API over a given period of time. Using the library [Toolbooth]("https://github.com/didip/tollbooth") which provides a simple API to perform rate limiting.
 
-Use the command `make run` to run the project, to make it work, the environment variable `MONGO_HOST=localhost` needs to be changed in .env file
+It can be configured by the following client variables
 
-### Test coverage
+- `HTTP_RATE_LIMIT=3`
+- `HTTP_RATE_INTERVAL=second`
+- `INTEGRATION_HTTP_RATE_LIMIT=100`
+- `INTEGRATION_HTTP_RATE_INTERVAL=minute`
 
-Use the command `make unittest` to run all the unit tests including coverage
+The interval has the values as listed below
 
-### Integration test
+- `second` default value
+- `minute`
+- `hour`
 
-Use the command `make integrationtest` to run all the integration tests
+### Get Health Rate Limit
 
-### Create and start containers
+#### Get Health Request Rate Limit
 
-Use the command `make dcbuild` to create and start all the containers
+```js
+GET /api/v1/health
+```
 
-### Swagger
+#### Get Health Response Rate Limit
 
-Use the command `make swagger` to generate the /docs/swagger.yaml and third_party/swagger-ui-4.11.1/swagger.json files from the go-swagger models
+```js
+429 Too Many Requests
+```
 
-### Generate mocks
+```text
+HTTP/1.1 429 Too Many Requests
+Content-Type: application/json
+Ratelimit-Limit: 3
+Ratelimit-Remaining: 0
+Ratelimit-Reset: 1
+X-Rate-Limit-Duration: 1
+X-Rate-Limit-Limit: 3.00
+X-Rate-Limit-Request-Remote-Addr: 172.25.0.1:54948
+```
 
-Use the command `make mocks` to generate the mocks of the interfaces in /internal/todo/note folder.
+```json
+{
+  "type":"TOO_MANY_REQUEST",
+  "message":"You have reached maximum request limit.",
+  "code":429
+}
+```
+
+## Trace
+
+To maintain the traceability of a request it is always useful to use unique identifiers when generating logs and calling other services. That is why the use of `X-Request-Id` and `X-Trace-Id` was implemented, when entering a request to the api will automatically generate a unique identifier `X-Request-Id`, then it will be verified in the header if there is any trace identifier `X-Trace-Id`, if there is one it will be kept the same if not it will be assigned the `X-Request-Id`, both identifiers will be transmitted in the context of the request, and both will be returned in the request response as headers.
+
+### Get Health Trace
+
+#### Get Health Request Without Trace Id
+
+```js
+GET /api/v1/health
+```
+
+#### Get Health Response With Trace Id
+
+```js
+200 Ok
+```
+
+```text
+X-Request-Id: 3d54f2f9-4418-4e50-90c6-d5209dc25d5d
+X-Trace-Id: 3d54f2f9-4418-4e50-90c6-d5209dc25d5d
+```
+
+```json
+{
+    "status" : "Healthy"
+}
+```
+
+#### Get Health Request With Trace Id
+
+```js
+GET /api/v1/health
+```
+
+```text
+X-Trace-Id: trace id from other system
+```
+
+#### Get Health Response With System Trace Id
+
+```js
+200 Ok
+```
+
+```text
+X-Request-Id: 3d54f2f9-4418-4e50-90c6-d5209dc25d5d
+X-Trace-Id: trace id from other system
+```
+
+```json
+{
+    "status" : "Healthy"
+}
+```
